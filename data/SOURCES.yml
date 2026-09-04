@@ -1,0 +1,133 @@
+# Manifesto de fontes. É contrato, não documentação.
+#
+# A ingestão recusa-se a escrever no núcleo qualquer registo cuja fonte tenha
+# `redistribuivel: false`. Isso é verificado em código (packages/ingest), não
+# confiado à memória de quem edita.
+#
+# Regra: uma fonte não-redistribuível pode ser ligada (deep link por CAS),
+# nunca copiada.
+
+fontes:
+  cosing:
+    nome: CosIng — Anexos II a VI do Reg. (CE) 1223/2009
+    entidade: Comissão Europeia, DG GROW
+    licenca: CC BY 4.0
+    base_legal: Decisão 2011/833/UE sobre a reutilização de documentos da Comissão
+    redistribuivel: true
+    atribuicao_obrigatoria: true
+    urls:
+      anexo_II:  https://api.tech.ec.europa.eu/cosing20/1.0/api/annexes/II/export-csv
+      anexo_III: https://api.tech.ec.europa.eu/cosing20/1.0/api/annexes/III/export-csv
+      anexo_IV:  https://api.tech.ec.europa.eu/cosing20/1.0/api/annexes/IV/export-csv
+      anexo_V:   https://api.tech.ec.europa.eu/cosing20/1.0/api/annexes/V/export-csv
+      anexo_VI:  https://api.tech.ec.europa.eu/cosing20/1.0/api/annexes/VI/export-csv
+    notas: >
+      O CosIng tem valor informativo e não valor legal — a própria Comissão o diz.
+      A app não pode apresentar-se como fonte oficial nem sugerir aval da Comissão.
+
+  clp_anexo_vi:
+    nome: Anexo VI, Parte 3 do Reg. (CE) 1272/2008 — classificações harmonizadas
+    entidade: União Europeia, via EUR-Lex/Cellar
+    licenca: CC BY 4.0
+    base_legal: Decisão 2011/833/UE
+    redistribuivel: true
+    atribuicao_obrigatoria: true
+    notas: >
+      Obter do EUR-Lex/Cellar, não do XLSX da ECHA — esse tem termos que
+      excluem uso comercial e reprodução.
+
+  reach_anexo_xvii:
+    nome: Anexo XVII do Reg. (CE) 1907/2006 — restrições
+    entidade: União Europeia, via EUR-Lex
+    licenca: CC BY 4.0
+    redistribuivel: true
+    atribuicao_obrigatoria: true
+
+  pubchem:
+    nome: PubChem — sinónimos (CID ↔ nome)
+    entidade: NCBI / NLM, EUA
+    licenca: Domínio público (obra do governo dos EUA)
+    redistribuivel: true
+    atribuicao_obrigatoria: false
+    notas: >
+      Ingerir apenas sinónimos de substâncias já presentes no núcleo, juntas por
+      CAS. NÃO ingerir a coluna de números CAS dos sinónimos: a ACS reivindica
+      direitos sobre a redistribuição em massa de números CAS, e a exceção que
+      nos cobre é a dos CAS que constam de textos legais da UE.
+
+  fip_aditivos:
+    nome: Base de dados de aditivos alimentares da UE (Reg. (CE) 1333/2008)
+    entidade: Comissão Europeia, DG SANTE
+    licenca: CC BY 4.0
+    redistribuivel: true
+    atribuicao_obrigatoria: true
+
+  sccs:
+    nome: Pareceres do Comité Científico da Segurança dos Consumidores
+    entidade: Comissão Europeia
+    licenca: CC BY 4.0
+    redistribuivel: true
+    atribuicao_obrigatoria: true
+    notas: Citar e ligar. Os PDFs não entram no núcleo.
+
+  # ─── Ligar, nunca copiar ───────────────────────────────────────────────
+  echa:
+    nome: ECHA — lista candidata SVHC e lista de disruptores endócrinos
+    licenca: Aviso legal da ECHA, §4.1.1 B
+    redistribuivel: false
+    motivo: >
+      Proíbe expressamente a reprodução, no todo ou em parte substancial, das
+      bases de dados da ECHA. As 253 entradas da lista candidata são parte
+      substancial. A lista de disruptores endócrinos não tem sequer API.
+    uso_permitido: deep link por número CAS
+
+  iarc:
+    nome: Monografias da IARC — classificação de carcinogenicidade
+    licenca: © IARC, todos os direitos reservados
+    redistribuivel: false
+    motivo: >
+      Não existe licença aberta. Os termos exigem autorização escrita para
+      circulação alargada. A carcinogenicidade vem do Anexo VI do CLP, que é
+      CC BY 4.0 e cobre o mesmo eixo de forma legítima.
+    uso_permitido: deep link
+
+  ifra:
+    nome: Normas IFRA
+    licenca: nenhuma licença pública
+    redistribuivel: false
+    motivo: >
+      Sem licença publicada, protegida pelo direito sui generis das bases de
+      dados (Dir. 96/9/CE), e o robots.txt bloqueia explicitamente crawlers.
+      Os alergénios de fragrância de declaração obrigatória já vêm do Anexo III
+      do CosIng, que é CC BY 4.0 — a IFRA não é necessária.
+    uso_permitido: nenhum
+
+  openfoodtox:
+    nome: OpenFoodTox (EFSA)
+    licenca: CC BY-ND 4.0
+    redistribuivel: false
+    motivo: >
+      A cláusula ND proíbe distribuir material adaptado. Reformatar em fichas
+      por ingrediente é precisamente adaptação.
+    uso_permitido: deep link
+
+  # ─── Runtime, nunca persistido ─────────────────────────────────────────
+  open_food_facts:
+    nome: Open Food Facts / Open Beauty Facts
+    licenca: ODbL 1.0 + DbCL 1.0
+    redistribuivel: false
+    motivo: >
+      A leitura do share-alike do ODbL sobre bases derivadas ficou por
+      confirmar. Em vez de apostar numa interpretação, contorna-se: consulta em
+      tempo real por código de barras, com consentimento explícito, sem cache e
+      sem persistência. Assim a questão não se põe.
+    uso_permitido: consulta em runtime, opt-in, nada guardado
+    cobertura_medida:
+      open_beauty_facts_total: 74474
+      open_beauty_facts_com_ingredientes: 20231
+      portugal_cosmetica_total: 1021
+      portugal_cosmetica_com_ingredientes: 143
+    nota_cobertura: >
+      14% dos cosméticos portugueses têm lista de ingredientes preenchida. O
+      código de barras é um atalho ocasional, não a via principal — e a
+      interface tem de dizer isso.

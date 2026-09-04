@@ -7,3 +7,4 @@ data/raw/
 data/build/
 *.log
 .DS_Store
+data/build/core.json
