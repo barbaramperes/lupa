@@ -113,3 +113,24 @@ describe('leitura editorial', () => {
     expect(a.resumo.veredicto).toMatch(/proibida/i);
   });
 });
+
+describe('nomes INCI embutidos no nome químico do Anexo II', () => {
+  it('encontra os parabenos proibidos pelo nome que está no rótulo', () => {
+    // "Isobutyl 4-hydroxybenzoate (INCI: Isobutylparaben)" — quem lê um rótulo
+    // escreve "Isobutylparaben", não a nomenclatura IUPAC. Sem esta extração,
+    // cinco substâncias PROIBIDAS ficavam invisíveis à pesquisa.
+    for (const nome of ['Isobutylparaben', 'Isopropylparaben', 'Phenylparaben', 'Benzylparaben', 'Pentylparaben']) {
+      const a = corre(`Aqua, Glycerin, ${nome}`);
+      const e = a.entradas.find((x) => x.raw === nome)!;
+      expect(e.estado, `${nome} devia ser reconhecido`).toBe('reconhecido');
+      expect(e.afirmacoes.map((c) => c.kind), `${nome} está no Anexo II`).toContain('annex_ii_banned');
+    }
+  });
+
+  it('os parabenos autorizados continuam a não ser confundidos com os proibidos', () => {
+    const a = corre('Aqua, Methylparaben, Ethylparaben');
+    for (const e of a.entradas.filter((x) => x.raw.includes('paraben'))) {
+      expect(e.afirmacoes.map((c) => c.kind)).not.toContain('annex_ii_banned');
+    }
+  });
+});

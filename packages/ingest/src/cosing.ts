@@ -123,6 +123,25 @@ export function casValido(cas: string): boolean {
   return soma % 10 === controlo;
 }
 
+/** O Anexo II não tem coluna de nome INCI — só nome químico/IUPAC — e a coluna
+ *  de ingredientes identificados está preenchida em 319 de 1758 entradas (18%).
+ *  Em cinco delas o nome INCI está enterrado dentro do nome químico, na forma
+ *  "Isobutyl 4-hydroxybenzoate (INCI: Isobutylparaben)". São precisamente os
+ *  cinco parabenos proibidos — a família sobre a qual mais se pergunta — e sem
+ *  esta extração ficam invisíveis a quem escreve o nome que está no rótulo. */
+export function extrairInciEmbutido(nomeQuimico: string): string[] {
+  const out: string[] = [];
+  const re = /\(\s*INCI\s*:\s*([^)]+)\)/gi;
+  let m: RegExpExecArray | null;
+  while ((m = re.exec(nomeQuimico))) {
+    for (const parte of m[1]!.split(/\s*[\/,;]\s*/)) {
+      const t = parte.trim();
+      if (t.length >= 3) out.push(t);
+    }
+  }
+  return out;
+}
+
 /** Células multi-valor explodem. Guardadas inteiras, funcionam como ímanes
  *  de correspondência aproximada e envenenam o matcher. */
 /** O CosIng usa "-" como marcador de "não aplicável". Tratá-lo como texto faz
@@ -210,7 +229,12 @@ export function construirNucleo(lidos: AnexoLido[], dataExtracao: string): CoreB
       const ec = explodir(linha[esp.colEc] ?? '').filter((e) => /^\d{3}-\d{3}-\d$/.test(e));
       const identificados = explodirIdentificados(linha[esp.colIdentificados] ?? '');
 
-      const nomesCandidatos = [...explodirNomes(inci), ...explodirNomes(nomeQuimico), ...identificados].filter(Boolean);
+      const nomesCandidatos = [
+        ...explodirNomes(inci),
+        ...explodirNomes(nomeQuimico),
+        ...extrairInciEmbutido(nomeQuimico),
+        ...identificados,
+      ].filter(Boolean);
       const nomesNorm = [...new Set(
         nomesCandidatos.map(normalize).filter((n) => n.length >= 2 && n.length <= COMPRIMENTO_MAXIMO_INDEXAVEL),
       )];
