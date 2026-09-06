@@ -62,3 +62,37 @@ arquitetural (CSP `default-src 'none'`) em vez de uma promessa numa política.
 
 D2 (telemóvel + desktop) e D3 (quatro eixos de fiabilidade) mantêm-se intactas
 e são implementadas na íntegra em qualquer dos cenários.
+
+---
+
+## D4 — O veredicto é factual; o índice é editorial e está rotulado como tal
+
+**Decidido por:** Bárbara, 4 set 2026 ("factos e índice").
+
+A primeira versão do frontend derivava o veredicto do índice, e apanhou-se a
+contradição em ecrã: anunciava "Sem alertas regulamentares" numa lista que
+mostrava, três linhas abaixo, "Reprotóxico cat. 2".
+
+Passou a haver duas camadas que não se podem contradizer:
+
+**Camada 1, factos.** Contagens (proibidos · com limites · reprotóxicos · por
+identificar) e uma frase derivada só dos anexos. Cada afirmação traz o anexo,
+o número de entrada, a data de extração e a licença. O texto legal é copiado,
+nunca parafraseado.
+
+**Camada 2, leitura editorial.** O índice 0–100, num bloco visualmente
+separado, com a etiqueta "não é um facto regulamentar", a fórmula à vista e
+a lista de penalizações discriminada. A regra: a camada 2 nunca cria um
+alerta que a camada 1 não tenha.
+
+Porquê separar: os anexos da UE classificam por *classe de perigo*, não por
+severidade. Somá-los num número é uma escolha discutível — e é precisamente o
+tipo de transformação de dados que aproxima uma app da fronteira do software
+com finalidade médica. Os factos mantêm-se do lado seguro dessa linha.
+
+## D5 — Três estados na interface, nunca dois
+
+Reconhecido, sugestão, por identificar. Uma app que só tem "alerta" e "ok"
+apresenta o desconhecido como seguro, que é a mentira mais fácil de contar
+neste domínio. Um rótulo com 8 entradas por identificar e 0 alertas mostra
+"8 por identificar" e não "tudo limpo".

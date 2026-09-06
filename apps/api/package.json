@@ -1,0 +1,11 @@
+{
+  "name": "@lupa/api",
+  "version": "0.1.0",
+  "type": "module",
+  "scripts": { "dev": "tsx watch src/servidor.ts", "start": "tsx src/servidor.ts" },
+  "dependencies": {
+    "@fastify/cors": "^10.0.1",
+    "@lupa/core": "workspace:*",
+    "fastify": "^5.1.0"
+  }
+}

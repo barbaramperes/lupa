@@ -1,0 +1,218 @@
+/* Identidade continuada da versão publicada: trio IBM Plex, acento petróleo,
+   filetes finos em vez de cartões arredondados. É uma ficha de segurança, não
+   um painel de marketing. */
+:root {
+  --bg:#EDF0F3; --superficie:#FAFBFC; --superficie2:#F2F5F7; --superficie3:#E7ECF0;
+  --tinta:#131A20; --tinta2:#4C5A66; --tinta3:#7C8A96;
+  --filete:#D6DDE3; --filete2:#C3CDD5;
+  --acento:#145C7A; --acento-suave:#E2EDF2;
+  --ok:#1D6F4A; --ok-suave:#E1F0E7;
+  --aviso:#8F5A05; --aviso-suave:#F9EBD3;
+  --grave:#9B2226; --grave-suave:#F8E2E2;
+  --repr:#5F3D91; --repr-suave:#EDE6F7;
+  --serif:"IBM Plex Serif",Georgia,serif;
+  --sans:"IBM Plex Sans",system-ui,-apple-system,sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,Menlo,monospace;
+  --sombra:0 1px 2px rgba(19,26,32,.06), 0 8px 24px -18px rgba(19,26,32,.2);
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-tema="claro"]) {
+    --bg:#0E1317; --superficie:#161C22; --superficie2:#1C232A; --superficie3:#232C34;
+    --tinta:#E6EDF2; --tinta2:#9FB0BC; --tinta3:#6E8090;
+    --filete:#2A343D; --filete2:#3A4650;
+    --acento:#79BCDA; --acento-suave:#13303D;
+    --ok:#74C79A; --ok-suave:#12291D;
+    --aviso:#E0A64A; --aviso-suave:#2E230F;
+    --grave:#EC8E8E; --grave-suave:#33191A;
+    --repr:#BCA2EC; --repr-suave:#241A38;
+    --sombra:0 1px 2px rgba(0,0,0,.4), 0 10px 28px -20px rgba(0,0,0,.8);
+  }
+}
+:root[data-tema="escuro"] {
+  --bg:#0E1317; --superficie:#161C22; --superficie2:#1C232A; --superficie3:#232C34;
+  --tinta:#E6EDF2; --tinta2:#9FB0BC; --tinta3:#6E8090;
+  --filete:#2A343D; --filete2:#3A4650;
+  --acento:#79BCDA; --acento-suave:#13303D;
+  --ok:#74C79A; --ok-suave:#12291D;
+  --aviso:#E0A64A; --aviso-suave:#2E230F;
+  --grave:#EC8E8E; --grave-suave:#33191A;
+  --repr:#BCA2EC; --repr-suave:#241A38;
+  --sombra:0 1px 2px rgba(0,0,0,.4), 0 10px 28px -20px rgba(0,0,0,.8);
+}
+
+* { box-sizing: border-box; }
+html, body { margin:0; padding:0; }
+body {
+  background: var(--bg); color: var(--tinta);
+  font-family: var(--sans); font-size:15px; line-height:1.55;
+  -webkit-font-smoothing: antialiased;
+}
+h1,h2,h3 { font-family: var(--serif); font-weight:600; margin:0; text-wrap:balance; }
+p { margin:0; }
+button, textarea, input, select { font: inherit; color: inherit; }
+:focus-visible { outline:2px solid var(--acento); outline-offset:2px; border-radius:2px; }
+.mono { font-family: var(--mono); font-variant-numeric: tabular-nums; }
+.sobrancelha {
+  font-family: var(--mono); font-size:10.5px; letter-spacing:.14em;
+  text-transform: uppercase; color: var(--tinta3);
+}
+
+/* ── cabeçalho ─────────────────────────────────────────────── */
+.casca { max-width:1360px; margin:0 auto; padding:18px 18px 72px; }
+.topo {
+  display:flex; flex-wrap:wrap; align-items:flex-end; gap:14px 24px;
+  padding-bottom:12px; border-bottom:1px solid var(--filete2);
+}
+.marca { margin-right:auto; display:flex; flex-direction:column; gap:1px; }
+.marca h1 { font-size:24px; letter-spacing:-.015em; line-height:1.15; }
+.marca .sub { color:var(--tinta2); font-size:12.5px; }
+.comandos { display:flex; flex-wrap:wrap; gap:8px; align-items:center; }
+.alternar {
+  display:flex; align-items:center; gap:7px; background:var(--superficie);
+  border:1px solid var(--filete); border-radius:3px; padding:5px 11px 5px 9px;
+  font-size:12.5px; font-weight:500; color:var(--tinta2); cursor:pointer;
+}
+.alternar .ponto { width:8px; height:8px; border-radius:50%; background:var(--filete2); flex:none; }
+.alternar[aria-pressed="true"] { border-color:var(--repr); color:var(--repr); background:var(--repr-suave); }
+.alternar[aria-pressed="true"] .ponto { background:var(--repr); }
+.fantasma {
+  background:var(--superficie2); border:1px solid var(--filete); color:var(--tinta2);
+  font-size:12.5px; padding:5px 10px; border-radius:3px; cursor:pointer;
+}
+.fantasma:hover { border-color:var(--acento); color:var(--acento); }
+
+/* ── colunas de comparação ─────────────────────────────────── */
+.colunas { display:grid; gap:18px; margin-top:18px; align-items:start; }
+.colunas[data-n="1"] { grid-template-columns: minmax(0,1fr); max-width:920px; }
+.colunas[data-n="2"] { grid-template-columns: repeat(2, minmax(0,1fr)); }
+.colunas[data-n="3"] { grid-template-columns: repeat(3, minmax(0,1fr)); }
+@media (max-width: 1000px) { .colunas[data-n="2"], .colunas[data-n="3"] { grid-template-columns: minmax(0,1fr); } }
+
+.painel { background:var(--superficie); border:1px solid var(--filete); border-radius:4px; box-shadow:var(--sombra); }
+.painel > header {
+  display:flex; align-items:center; gap:10px; padding:9px 13px;
+  border-bottom:1px solid var(--filete);
+}
+.painel > header input[type="text"] {
+  flex:1; min-width:0; background:none; border:0; font-family:var(--serif);
+  font-size:15px; font-weight:600; padding:0;
+}
+.painel > header input::placeholder { color:var(--tinta3); font-weight:400; }
+.fechar { background:none; border:0; color:var(--tinta3); cursor:pointer; font-size:17px; line-height:1; padding:2px 4px; }
+.fechar:hover { color:var(--grave); }
+textarea {
+  width:100%; min-height:130px; resize:vertical; border:0; background:none;
+  padding:11px 13px; font-family:var(--mono); font-size:12px; line-height:1.65;
+}
+textarea::placeholder { color:var(--tinta3); }
+.rodape-painel {
+  border-top:1px solid var(--filete); padding:9px 13px;
+  display:flex; flex-wrap:wrap; gap:6px; align-items:center;
+}
+.rodape-painel .conta { margin-left:auto; font-family:var(--mono); font-size:10.5px; color:var(--tinta3); }
+
+/* ── contagens: os factos primeiro ─────────────────────────── */
+.contagens { display:flex; flex-wrap:wrap; border-top:1px solid var(--filete); }
+.contagens div {
+  flex:1 1 80px; padding:9px 12px; border-right:1px solid var(--filete);
+  display:flex; flex-direction:column; gap:0; background:var(--superficie2);
+}
+.contagens div:last-child { border-right:0; }
+.contagens b { font-family:var(--mono); font-size:19px; font-weight:500; line-height:1.25; }
+.contagens span { font-size:10.5px; color:var(--tinta2); line-height:1.3; }
+.contagens .destaque b { color:var(--grave); }
+.contagens .repr b { color:var(--repr); }
+.contagens .aberto b { color:var(--tinta3); }
+
+/* ── entradas ──────────────────────────────────────────────── */
+.entradas { display:flex; flex-direction:column; }
+.ent { display:grid; grid-template-columns:3px minmax(0,1fr); border-top:1px solid var(--filete); }
+.ent .risca { background:var(--filete2); }
+.ent[data-estado="por_identificar"] .risca { background:var(--filete); }
+.ent[data-tem="limites"] .risca { background:var(--acento); }
+.ent[data-tem="cmr"] .risca { background:var(--aviso); }
+.ent[data-tem="proibido"] .risca { background:var(--grave); }
+.ent[data-repr="1"] .risca { background:var(--repr); }
+.ent.realce { background:linear-gradient(90deg, var(--repr-suave), transparent 55%); }
+.ent .corpo { padding:10px 13px 11px; display:flex; flex-direction:column; gap:6px; min-width:0; }
+.ent .l1 { display:flex; flex-wrap:wrap; align-items:baseline; gap:6px 9px; }
+.ent .pos {
+  font-family:var(--mono); font-size:10px; color:var(--tinta3);
+  border:1px solid var(--filete); padding:0 4px; border-radius:2px; flex:none;
+}
+.ent .nome { font-family:var(--serif); font-size:15px; font-weight:600; }
+.ent[data-estado="por_identificar"] .nome { font-weight:500; color:var(--tinta2); }
+
+.marcas { display:flex; flex-wrap:wrap; gap:4px; }
+.marca-p {
+  font-size:10.5px; font-weight:500; padding:1px 6px; border-radius:2px;
+  border:1px solid var(--filete); background:var(--superficie2); color:var(--tinta2);
+  white-space:nowrap;
+}
+.marca-p.proibido { background:var(--grave-suave); border-color:var(--grave); color:var(--grave); }
+.marca-p.limites { background:var(--acento-suave); border-color:var(--acento); color:var(--acento); }
+.marca-p.reprotoxico { background:var(--repr-suave); border-color:var(--repr); color:var(--repr); }
+.marca-p.carcinogenico, .marca-p.mutagenico { background:var(--aviso-suave); border-color:var(--aviso); color:var(--aviso); }
+.marca-p.aberto { border-style:dashed; color:var(--tinta3); }
+.marca-p.blend { background:none; border-style:dashed; }
+
+.afirmacao {
+  border-left:2px solid var(--filete); padding:4px 0 4px 9px;
+  display:flex; flex-direction:column; gap:3px;
+}
+.afirmacao .cabeca { font-size:12.5px; font-weight:500; }
+.afirmacao dl { display:grid; grid-template-columns:auto minmax(0,1fr); gap:1px 8px; margin:0; }
+.afirmacao dt { font-family:var(--mono); font-size:10px; color:var(--tinta3); text-transform:uppercase; letter-spacing:.06em; padding-top:2px; }
+.afirmacao dd { margin:0; font-size:12.5px; color:var(--tinta2); white-space:pre-line; }
+.proveniencia { font-family:var(--mono); font-size:10px; color:var(--tinta3); }
+.nota-aberta { font-size:12.5px; color:var(--tinta3); }
+
+/* ── leitura editorial: visualmente separada dos factos ────── */
+.editorial {
+  margin-top:14px; border:1px dashed var(--filete2); border-radius:4px;
+  background:var(--superficie2); padding:12px 14px;
+  display:flex; flex-direction:column; gap:9px;
+}
+.editorial .cabeca { display:flex; align-items:baseline; gap:12px; flex-wrap:wrap; }
+.editorial .indice { font-family:var(--serif); font-size:33px; line-height:1; letter-spacing:-.02em; }
+.editorial .den { font-family:var(--mono); font-size:12px; color:var(--tinta3); }
+.editorial .veredicto { font-size:14px; font-weight:600; }
+.editorial .aviso { font-size:12px; color:var(--tinta2); max-width:62ch; }
+.editorial details { font-size:12px; color:var(--tinta2); }
+.editorial summary { cursor:pointer; color:var(--acento); font-size:12px; }
+.editorial .pen { display:flex; justify-content:space-between; gap:12px; padding:3px 0; border-bottom:1px solid var(--filete); font-size:12px; }
+.editorial .pen:last-child { border-bottom:0; }
+.editorial .pen b { font-family:var(--mono); font-weight:500; flex:none; }
+
+.rodape { margin-top:26px; padding-top:14px; border-top:1px solid var(--filete2); font-size:11.5px; color:var(--tinta3); max-width:88ch; display:grid; gap:7px; }
+.rodape b { color:var(--tinta2); font-weight:600; }
+.rodape a { color:var(--acento); }
+.erro { color:var(--grave); font-size:12.5px; padding:9px 13px; border-top:1px solid var(--filete); }
+@media (prefers-reduced-motion: reduce) { * { transition:none !important; animation:none !important; } }
+
+.veredicto-factual {
+  border-top:1px solid var(--filete); padding:9px 13px 0;
+  font-family:var(--serif); font-size:15px; font-weight:600;
+}
+
+/* uma entrada por identificar não tem nada a mostrar: fica de uma só altura,
+   para não enterrar as que têm */
+.ent[data-estado="por_identificar"] .corpo { padding-top:7px; padding-bottom:7px; gap:0; }
+.ent[data-estado="por_identificar"] .l1 { align-items:center; }
+.ent[data-estado="por_identificar"] .marcas { display:inline-flex; margin-left:2px; }
+.ent[data-estado="por_identificar"] .nome { font-size:14px; }
+.nota-rodape {
+  border-top:1px solid var(--filete); padding:10px 13px;
+  font-size:12px; color:var(--tinta3); background:var(--superficie2);
+}
+.nota-rodape b { color:var(--tinta2); font-family:var(--mono); }
+
+/* O texto legal é longo por natureza — a entrada do ácido salicílico sozinha
+   ocupava 729px. O limite de concentração é o facto que se procura e fica
+   sempre à vista; as condições ficam a um clique, literais e completas. */
+.condicoes summary {
+  cursor:pointer; font-family:var(--mono); font-size:10.5px;
+  color:var(--acento); letter-spacing:.03em; padding:1px 0;
+}
+.condicoes[open] summary { margin-bottom:3px; }
+.condicoes dd { max-height:9.5em; overflow-y:auto; }
