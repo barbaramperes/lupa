@@ -3,7 +3,7 @@ import { Matcher } from '../packages/core/src/match';
 import { analisar, extrairCmr } from '../packages/core/src/analisar';
 import { nucleo } from './corpus';
 
-const matcher = new Matcher(nucleo.index);
+const matcher = new Matcher(nucleo.index, nucleo.fuzzy_keys);
 const corre = (texto: string) => analisar(nucleo, matcher, texto, 'cos');
 
 /** Rótulos reais transcritos à mão. Ninguém nos dá isto e vale mais que

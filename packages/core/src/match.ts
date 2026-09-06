@@ -95,6 +95,72 @@ export function violaGuardaSufixo(a: string, b: string): boolean {
   return false;
 }
 
+/** Se os dois nomes só diferem no último token e esse token é curto, rejeita.
+ *
+ *  Em nomenclatura de corantes e de químicos, um token final curto é um
+ *  DESIGNADOR — o que distingue uma substância da seguinte da mesma família.
+ *  ACID ORANGE G e ACID ORANGE 6 são corantes diferentes com estatuto
+ *  regulamentar divergente, e "G" é confundível com "6" num OCR. A guarda
+ *  anti-locante não os apanha porque só dispara quando as formas sem dígitos
+ *  são iguais, e aqui não são: uma tem letra onde a outra tem número. */
+export function violaGuardaDesignador(a: string, b: string): boolean {
+  const ta = a.split(' ');
+  const tb = b.split(' ');
+  if (ta.length !== tb.length || ta.length < 2) return false;
+  for (let i = 0; i < ta.length - 1; i++) if (ta[i] !== tb[i]) return false;
+  const ua = ta.at(-1)!;
+  const ub = tb.at(-1)!;
+  if (ua === ub) return false;
+  return ua.length <= 3 || ub.length <= 3;
+}
+
+/**
+ * Guarda estrita, para o caminho da distância de edição.
+ *
+ * Em nomenclatura química o nome é composicional: cada token carrega
+ * identidade. Trocar UM token inteiro quase nunca é uma gralha — é outra
+ * substância. Medido no corpus, todos estes pares têm estatuto regulamentar
+ * divergente e distância de edição ≤2:
+ *
+ *   CADMIUM CARBONATE   ⟷ CALCIUM CARBONATE     o catião muda tudo
+ *   SODIUM SORBATE      ⟷ SODIUM BORATE         o anião muda tudo
+ *   BENZOPHENONE        ⟷ BENZOPHENONE 3        proibida vs filtro UV autorizado
+ *   4 NITRO M PHENYL…   ⟷ 4 NITRO O PHENYL…     isómeros meta e orto
+ *
+ * A única diferença de um token que É uma gralha: quando um token é prefixo
+ * do outro, ou seja falta ou sobra o fim de uma palavra.
+ */
+export function violaGuardaTokens(a: string, b: string): boolean {
+  const ta = a.split(' ');
+  const tb = b.split(' ');
+
+  // Diferença só de espaçamento: o mesmo texto partido de outra maneira.
+  // Não se atravessa, porque no corpus estas formas correspondem a entradas
+  // distintas com estatuto próprio.
+  if (ta.join('') === tb.join('')) return true;
+
+  // Um token a mais ou a menos: é um designador de família acrescentado
+  // (BENZOPHENONE → BENZOPHENONE 3).
+  if (Math.abs(ta.length - tb.length) === 1) {
+    const [curto, longo] = ta.length < tb.length ? [ta, tb] : [tb, ta];
+    for (let i = 0; i <= longo.length - curto.length; i++) {
+      if (curto.every((t, j) => t === longo[i + j])) return true;
+    }
+    return false;
+  }
+
+  if (ta.length !== tb.length) return false;
+
+  const diferentes: Array<[string, string]> = [];
+  for (let i = 0; i < ta.length; i++) if (ta[i] !== tb[i]) diferentes.push([ta[i]!, tb[i]!]);
+  if (diferentes.length !== 1) return false;
+
+  const [x, y] = diferentes[0]!;
+  // gralha de truncamento: aceitável
+  if (x.startsWith(y) || y.startsWith(x)) return false;
+  return true;
+}
+
 /** Âncora nos dois primeiros caracteres.
  *  Mata PANTHENOL → PHENOL (PA vs PH) e GLYCERIN → NITROGLYCERINE (GL vs NI). */
 export function violaGuardaAncora(a: string, b: string): boolean {
@@ -113,9 +179,15 @@ export class Matcher {
    *  por isso indexar por ela é gratuito e torna a busca linear no balde. */
   private readonly baldes = new Map<string, string[]>();
 
-  constructor(index: Record<string, string[]> | Map<string, string[]>) {
+  /**
+   * @param index      todas as chaves — usadas para correspondência EXATA
+   * @param fuzzyKeys  subconjunto elegível para correspondência aproximada.
+   *                   Omitir usa todas, o que só é correto quando o índice
+   *                   inteiro vem de uma fonte de alta confiança.
+   */
+  constructor(index: Record<string, string[]> | Map<string, string[]>, fuzzyKeys?: string[]) {
     this.index = index instanceof Map ? index : new Map(Object.entries(index));
-    for (const chave of this.index.keys()) {
+    for (const chave of fuzzyKeys ?? [...this.index.keys()]) {
       const a = chave.slice(0, 2);
       const b = this.baldes.get(a);
       if (b) b.push(chave); else this.baldes.set(a, [chave]);
@@ -136,7 +208,12 @@ export class Matcher {
     // Um dígito dentro de um token inteiramente numérico nunca é substituído,
     // o que protege CI 77491 de virar CI 77401.
     const variantes = this.variantesOcr(n);
-    const acertos = variantes.filter((v) => this.index.has(v));
+    const acertos = variantes.filter((v) => this.index.has(v) && this.elegivelParaSugestao(v)).filter((v) =>
+      // As mesmas guardas de espécie aplicam-se aqui. A âncora é a única que
+      // NÃO se aplica: numa correção de OCR o caractere corrompido pode ser o
+      // primeiro, e exigir âncora igual anularia o mecanismo. O que substitui
+      // a âncora como travão é o requisito de acerto exato único.
+      !violaGuardaLocante(n, v) && !violaGuardaSufixo(n, v) && !violaGuardaDesignador(n, v));
     if (acertos.length === 1) {
       return { candidato: acertos[0]!, distancia: 1, via: 'ocr' };
     }
@@ -149,15 +226,24 @@ export class Matcher {
 
     let melhor: Sugestao | null = null;
     for (const cand of balde) {
+      if (cand === n) continue; // sugerir o próprio nome não é uma sugestão
       if (Math.abs(cand.length - n.length) > orcamento) continue;
       if (violaGuardaAncora(n, cand)) continue;
       if (violaGuardaLocante(n, cand)) continue;
       if (violaGuardaSufixo(n, cand)) continue;
+      if (violaGuardaTokens(n, cand)) continue;
       const d = distancia(n, cand, orcamento);
       if (d > orcamento) continue;
       if (!melhor || d < melhor.distancia) melhor = { candidato: cand, distancia: d, via: 'aproximada' };
     }
     return melhor;
+  }
+
+  /** Uma sugestão só pode apontar para um nome de texto legal. Corrigir um
+   *  erro de leitura para um nome de nomenclatura sistemática seria trocar uma
+   *  incerteza por outra. */
+  private elegivelParaSugestao(chave: string): boolean {
+    return (this.baldes.get(chave.slice(0, 2)) ?? []).includes(chave);
   }
 
   private variantesOcr(n: string): string[] {

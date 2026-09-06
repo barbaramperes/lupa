@@ -76,5 +76,21 @@ export interface CoreBundle {
   /** nome normalizado → ids de substância. N:N por construção: um nome pode
    *  apontar para várias substâncias (sais, hidratos, misturas). */
   index: Record<string, string[]>;
+  /** Subconjunto do índice elegível para correspondência APROXIMADA: apenas
+   *  os nomes vindos dos textos legais da UE.
+   *
+   *  Porquê separar. A ponte do PubChem traz nomenclatura IUPAC sistemática,
+   *  onde uma letra muda o número de carbonos (HEXENAL/HEPTENAL), um prefixo
+   *  muda o éter (ETHOXY/METHOXY) e um dígito muda o isómero. Medido no
+   *  corpus: com esses nomes no balde de candidatos, a sugestão atravessava
+   *  610 pares com estatuto regulamentar divergente. Nenhuma guarda razoável
+   *  apanha todos, porque a distância de edição é a primitiva errada para
+   *  nomenclatura química.
+   *
+   *  A solução não é apertar limiares: é reconhecer que estes nomes servem
+   *  para correspondência EXATA — alguém a colar uma ficha de segurança — e
+   *  não para adivinhar o que a pessoa quis escrever. Ninguém escreve
+   *  "2,2'-[2-etoxietoxi]etan-1-ol" num rótulo de cosmético. */
+  fuzzy_keys?: string[];
   stats: Record<string, number>;
 }

@@ -1,9 +1,10 @@
 import { describe, it, expect } from 'vitest';
-import { Matcher, normalize, distancia, orcamentoEdicao } from '../packages/core/src/match';
+import { Matcher, normalize, distancia, orcamentoEdicao, violaGuardaDesignador, violaGuardaTokens } from '../packages/core/src/match';
 import { nucleo, estatutoDe, proibido } from './corpus';
 
-const matcher = new Matcher(nucleo.index);
-const chaves = Object.keys(nucleo.index);
+const matcher = new Matcher(nucleo.index, nucleo.fuzzy_keys);
+const chaves = nucleo.fuzzy_keys ?? Object.keys(nucleo.index);
+const todasAsChaves = Object.keys(nucleo.index);
 
 /**
  * INVARIANTE DOS PARES PERIGOSOS.
@@ -120,11 +121,80 @@ describe('correspondência de erros de OCR', () => {
   it('nunca troca dígitos dentro de números de Colour Index', () => {
     // CI 77491 e CI 77492 são pigmentos diferentes. Um dígito trocado aqui
     // é uma substância diferente, não um erro de leitura a corrigir.
-    const ciKeys = chaves.filter((k) => /^CI \d{5}$/.test(k));
+    const ciKeys = todasAsChaves.filter((k) => /^CI \d{5}$/.test(k));
     if (ciKeys.length < 2) return;
     for (const k of ciKeys.slice(0, 30)) {
       const s = matcher.sugere(k.replace(/\d/, (d) => (d === '0' ? '8' : '0')));
       expect(s?.via, `${k} não pode ser resolvido por substituição de dígito`).not.toBe('ocr');
     }
+  });
+});
+
+describe('guarda de designador', () => {
+  it('não troca um designador final curto, nem por OCR', () => {
+    // ACID ORANGE G e ACID ORANGE 6 são corantes diferentes com estatuto
+    // divergente, e G↔6 é uma confusão clássica de OCR. Antes desta guarda o
+    // caminho do OCR contornava todas as outras e devolvia a troca como
+    // correção plausível.
+    const s = matcher.sugere('ACID ORANGE G');
+    expect(s?.candidato).not.toBe('ACID ORANGE 6');
+  });
+
+  it('bloqueia a troca de anião, que é a identidade da substância', () => {
+    // SODIUM SORBATE é conservante autorizado (Anexo V); SODIUM BORATE é
+    // reprotóxico e restringido. Uma letra de distância.
+    expect(violaGuardaTokens('SODIUM SORBATE', 'SODIUM BORATE')).toBe(true);
+    expect(violaGuardaTokens('POTASSIUM SORBATE', 'POTASSIUM BORATE')).toBe(true);
+    expect(violaGuardaTokens('STRONTIUM LACTATE', 'STRONTIUM ACETATE')).toBe(true);
+    // o catião conta tanto como o anião
+    expect(violaGuardaTokens('CADMIUM CARBONATE', 'CALCIUM CARBONATE')).toBe(true);
+    // um designador de família acrescentado é outra substância
+    expect(violaGuardaTokens('BENZOPHENONE', 'BENZOPHENONE 3')).toBe(true);
+    // isómeros meta e orto
+    expect(violaGuardaTokens('4 NITRO M PHENYLENEDIAMINE', '4 NITRO O PHENYLENEDIAMINE')).toBe(true);
+    expect(matcher.sugere('SODIUM SORBATE')?.candidato).not.toBe('SODIUM BORATE');
+  });
+
+  it('deixa passar truncamentos, que são gralhas e não outra substância', () => {
+    // Um token que é prefixo do outro é uma letra a menos ou a mais.
+    expect(violaGuardaTokens('SODIUM LAURYL SULFAT', 'SODIUM LAURYL SULFATE')).toBe(false);
+    expect(violaGuardaTokens('BENZYL ALCOHO', 'BENZYL ALCOHOL')).toBe(false);
+  });
+
+  it('a guarda curta do caminho de OCR só olha para designadores finais curtos', () => {
+    // O OCR precisa de regras mais permissivas: o caractere corrompido está
+    // tipicamente no meio de uma palavra e não há relação de prefixo.
+    expect(violaGuardaDesignador('ACID ORANGE G', 'ACID ORANGE 6')).toBe(true);
+    expect(violaGuardaDesignador('PHENOXYETHANOL', 'PHEN0XYETHANOL')).toBe(false);
+    expect(violaGuardaDesignador('CI 77491', 'CI 77492')).toBe(false); // coberto pela anti-locante
+  });
+
+  it('nunca sugere o próprio nome', () => {
+    for (const k of chaves.slice(0, 200)) {
+      const s = matcher.sugere(k);
+      expect(s?.candidato).not.toBe(k);
+    }
+  });
+});
+
+
+describe('separação entre correspondência exata e aproximada', () => {
+  it('as chaves da ponte do PubChem existem para exata mas nunca são sugeridas', () => {
+    const doCosIng = new Set(chaves);
+    const daPonte = todasAsChaves.filter((k) => !doCosIng.has(k));
+    expect(daPonte.length, 'a ponte tem de ter acrescentado chaves').toBeGreaterThan(1000);
+
+    // exata: alcançáveis
+    for (const k of daPonte.slice(0, 50)) expect(matcher.exata(k)).not.toBeNull();
+
+    // aproximada: nunca propostas. É esta a invariante que impede a
+    // nomenclatura IUPAC de envenenar as sugestões.
+    const propostas = new Set<string>();
+    for (const k of daPonte.slice(0, 4000)) {
+      const s = matcher.sugere(k + 'X');
+      if (s) propostas.add(s.candidato);
+    }
+    const contaminadas = [...propostas].filter((p) => !doCosIng.has(p));
+    expect(contaminadas, `sugestões vindas da ponte: ${contaminadas.slice(0, 5).join(', ')}`).toEqual([]);
   });
 });

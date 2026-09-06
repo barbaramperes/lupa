@@ -96,3 +96,61 @@ Reconhecido, sugestão, por identificar. Uma app que só tem "alerta" e "ok"
 apresenta o desconhecido como seguro, que é a mentira mais fácil de contar
 neste domínio. Um rótulo com 8 entradas por identificar e 0 alertas mostra
 "8 por identificar" e não "tudo limpo".
+
+---
+
+## D6 — Correspondência exata e aproximada usam conjuntos de chaves diferentes
+
+**Descoberto ao ligar a ponte CAS→INCI do PubChem, 6 set 2026.**
+
+A ponte levou o índice de 9 209 para 116 980 chaves e resolveu o problema que
+existia: 64% das substâncias proibidas do Anexo II passaram a ser alcançáveis
+pelo nome que está no rótulo, contra os 18% de antes.
+
+Mas a suite de regressão passou de 0 para **610 travessias** — sugestões que
+atravessavam um par com estatuto regulamentar divergente. A causa não foi um
+limiar mal calibrado: a nomenclatura IUPAC é sistematicamente adversarial à
+distância de edição.
+
+    HEXENAL      ⟷ HEPTENAL        uma letra, um carbono a mais
+    ETHOXY…      ⟷ METHOXY…        uma letra, outro éter
+    2,3-…DIOL    ⟷ 2,7-…DIOL       um dígito, outro isómero
+
+A resposta certa não era apertar guardas até isto passar. Foi reconhecer que
+estes nomes servem para uma coisa e não para outra:
+
+- **Correspondência exata** usa TODAS as chaves. É o alcance, e é o objetivo
+  da ponte: alguém que cole uma ficha de segurança ou escreva um nome químico
+  é atendido.
+- **Correspondência aproximada** usa apenas as chaves vindas dos textos legais
+  da UE (`fuzzy_keys`). Adivinhar o que alguém quis escrever só se faz contra
+  nomes que alguém escreveria. Ninguém escreve "2,2'-[2-etoxietoxi]etan-1-ol"
+  num rótulo de cosmético.
+
+Efeito: 610 travessias → 12, e o teste passou de 62 s para 1,7 s. As 12
+restantes eram padrões reais e distintos, cada um resolvido por guarda própria
+(ver D7).
+
+## D7 — Em nomenclatura química, um token inteiro trocado é outra substância
+
+As 12 travessias que sobreviveram à separação de D6 tinham todas a mesma
+forma: um token do nome trocado por outro, à distância de edição 1 ou 2, com
+estatuto regulamentar oposto.
+
+    CADMIUM CARBONATE  ⟷ CALCIUM CARBONATE    o catião
+    SODIUM SORBATE     ⟷ SODIUM BORATE        o anião: conservante vs reprotóxico
+    BENZOPHENONE       ⟷ BENZOPHENONE 3       proibida vs filtro UV autorizado
+    4-NITRO-M-PHENYL…  ⟷ 4-NITRO-O-PHENYL…    isómeros meta e orto
+
+Regra adotada: se dois nomes diferem em exatamente um token, ou num token
+inteiro a mais, são substâncias diferentes e não se sugerem um pelo outro.
+Única exceção: quando um token é prefixo do outro, que é a assinatura de um
+truncamento — SULFAT/SULFATE é gralha, SORBATE/BORATE não é.
+
+O caminho do OCR ficou com guardas próprias, mais permissivas, porque aí o
+caractere corrompido está tipicamente no meio de uma palavra e não há relação
+de prefixo. O que o trava é o requisito de acerto exato único.
+
+**Custo aceite:** perdem-se sugestões para gralhas dentro de um anião. É o
+custo certo — um "por identificar" é honesto, um alerta de borato num rótulo
+que diz sorbato é uma mentira com aspeto de facto regulamentar.

@@ -9,7 +9,7 @@ const CAMINHO_NUCLEO = process.env.LUPA_NUCLEO
   ?? new URL('../../../data/build/core.json', import.meta.url).pathname;
 
 const nucleo: CoreBundle = JSON.parse(readFileSync(CAMINHO_NUCLEO, 'utf8'));
-const matcher = new Matcher(nucleo.index);
+const matcher = new Matcher(nucleo.index, nucleo.fuzzy_keys);
 const porId = new Map(nucleo.substances.map((s) => [s.id, s]));
 const claimsPorId = new Map<string, typeof nucleo.claims>();
 for (const c of nucleo.claims) {

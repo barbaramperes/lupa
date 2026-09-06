@@ -1,6 +1,8 @@
 import { mkdirSync, writeFileSync, existsSync, readFileSync } from 'node:fs';
 import { gzipSync, brotliCompressSync, constants } from 'node:zlib';
 import { ANEXOS, descarregarAnexo, lerAnexo, construirNucleo, type AnexoLido } from './cosing';
+import { construirPonte } from './pubchem';
+import { enriquecerComPonte } from './enriquecer';
 
 const RAIZ = new URL('../../../', import.meta.url).pathname;
 const DIR_BRUTO = `${RAIZ}data/raw`;
@@ -40,6 +42,33 @@ if (existsSync(caminhoAnterior)) {
 }
 
 const nucleo = construirNucleo(lidos, hoje);
+
+// ── ponte CAS → nomes de rótulo ──────────────────────────────────────────
+// Opcional por desenho: sem o ficheiro do PubChem o núcleo continua correto,
+// apenas com menos alcance. Nunca é um erro fatal.
+const CAMINHO_PUBCHEM = `${DIR_BRUTO}/CID-Synonym-filtered.gz`;
+if (existsSync(CAMINHO_PUBCHEM)) {
+  const casDoNucleo = new Set(nucleo.substances.flatMap((s) => s.cas));
+  console.log(`\n  Ponte CAS→INCI: ${casDoNucleo.size} números CAS no núcleo a procurar no PubChem`);
+  const t0 = Date.now();
+  const ponte = await construirPonte(CAMINHO_PUBCHEM, casDoNucleo, (n) =>
+    process.stdout.write(`\r  ${(n / 1e6).toFixed(0)}M linhas lidas…`));
+  process.stdout.write('\r' + ' '.repeat(40) + '\r');
+  console.log(`  ${(ponte.linhasLidas / 1e6).toFixed(1)}M linhas · ${(ponte.blocosLidos / 1e6).toFixed(2)}M compostos · ${ponte.blocosCasados} casados por CAS · ${((Date.now() - t0) / 1000).toFixed(0)}s`);
+  console.log(`  nomes candidatos: ${ponte.nomesAceites} aceites pelo filtro, ${ponte.nomesRejeitados} rejeitados como identificadores de registo`);
+
+  const rel = enriquecerComPonte(nucleo, ponte.porCas, hoje);
+  console.log(`\n  ${rel.nomes_adicionados} nomes novos em ${rel.substancias_enriquecidas} substâncias (de ${rel.substancias_com_cas} com CAS)`);
+  console.log(`  índice: ${rel.chaves_antes} → ${rel.chaves_depois} chaves`);
+  console.log(`  rejeitados: ${rel.rejeitados_por_colisao} por colisão com chave existente, ${rel.rejeitados_por_duplicado} por já existirem`);
+  if (rel.exemplos_novos.length) {
+    console.log('  exemplos de nomes novos:');
+    for (const e of rel.exemplos_novos.slice(0, 5)) console.log(`    ${e}`);
+  }
+} else {
+  console.log('\n  (sem CID-Synonym-filtered.gz — núcleo sem ponte CAS→INCI)');
+}
+
 const json = JSON.stringify(nucleo);
 writeFileSync(`${DIR_BUILD}/core.json`, json);
 writeFileSync(caminhoAnterior, JSON.stringify({
