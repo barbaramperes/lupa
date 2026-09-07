@@ -154,3 +154,64 @@ de prefixo. O que o trava é o requisito de acerto exato único.
 **Custo aceite:** perdem-se sugestões para gralhas dentro de um anião. É o
 custo certo — um "por identificar" é honesto, um alerta de borato num rótulo
 que diz sorbato é uma mentira com aspeto de facto regulamentar.
+
+---
+
+## D8 — Um facto encontrado vence sempre a incerteza sobre o que ficou por ler
+
+Quatro rótulos reais expuseram o pior modo de falha desta app, e duas
+tentativas erradas de o corrigir.
+
+**O problema.** Metade dos rótulos vendidos em Portugal traz a lista de
+ingredientes traduzida, apesar de o art. 19.º do Reg. 1223/2009 exigir
+nomenclatura INCI. Nessas listas o motor reconhecia zero entradas, encontrava
+zero alertas e devolvia índice 100 — indistinguível de um produto
+genuinamente limpo. Silêncio apresentado como segurança.
+
+**Primeira tentativa, errada.** Recusar avaliar quando a taxa de
+correspondência é baixa. Reprovava um gel de banho inglês com 4 entradas
+reguladas em 18 — quando "a maioria dos ingredientes não é regulada" é o caso
+normal de qualquer rótulo, e o resultado estava certo.
+
+**Segunda tentativa, errada.** Medir a forma da lista em vez da taxa —
+correto — mas deixar isso calar o veredicto. Numa lista traduzida onde se
+encontrou hidroquinona (proibida, Anexo II), a app dizia "não foi possível
+avaliar". Esconder um achado é pior do que o problema original.
+
+**Regra final.** Três coisas separadas:
+- **O veredicto** é sempre factual. Só diz "não foi possível avaliar" quando
+  não há literalmente nada encontrado.
+- **O índice** desaparece sempre que a lista está traduzida, mesmo havendo
+  achados: com parte das entradas por ler, o número só pode ser um limite
+  superior, e apresentar um limite superior como medição é o erro a evitar.
+- **O aviso** de que a lista parece traduzida aparece sempre que for o caso.
+
+## D9 — Tradução PT→INCI, com a regra que a torna segura
+
+Léxico curado de nomes químicos, mais uma regra estrutural para nomes
+botânicos ("óleo da semente de X" → X SEED OIL). A tradução fica visível na
+interface, porque é um passo a mais entre o rótulo e o veredicto.
+
+**A regra que a torna segura:** uma tradução só vale se produzir um nome que
+EXISTE no índice. Uma tradução errada não encontra nada e a entrada fica "por
+identificar". Traduzir mal nunca gera um alerta — no pior caso não gera nada.
+
+Curadoria explícita, não heurística, nos pares que não se podem confundir:
+esqualeno/esqualano, sulfito/sulfato.
+
+## D10 — Duas correções que os rótulos reais obrigaram
+
+**Combinações declaradas com "(AND)".** O Anexo V, entrada 59, é
+"CITRIC ACID (AND) SILVER CITRATE" — um conservante à base de prata. Separado
+em dois, o ácido cítrico passava a arrastar a restrição de prata, e o ácido
+cítrico é regulador de pH em quase todos os cosméticos que existem. A
+restrição de uma combinação aplica-se ao conjunto. A entrada lista o CAS de
+cada componente, por isso a ponte por CAS também tem de a ignorar.
+
+**Nomes de declaração obrigatória escondidos nas condições.** Dezasseis
+entradas do Anexo III dizem, no texto das condições, que a presença "shall be
+indicated as 'X'" — e X é o nome que aparece no frasco, não o do glossário.
+São todas óleos essenciais e alergénios de fragrância: Citrus Aurantium Peel
+Oil, Eucalyptus Globulus Oil, Eugenia Caryophyllus Oil, Cananga Odorata
+Oil/Extract, Myroxylon Pereirae, Rose Ketones, Citral. Ou seja, exatamente o
+vocabulário dos rótulos de cosmética natural.

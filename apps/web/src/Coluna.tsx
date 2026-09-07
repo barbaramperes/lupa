@@ -49,6 +49,12 @@ function LinhaEntrada({ e, realcarRepr }: { e: Entrada; realcarRepr: boolean }) 
           )}
         </div>
 
+        {e.traduzido_de && (
+          <span className="traduzido">
+            Traduzido de «{e.traduzido_de.original}» para <b>{e.traduzido_de.inci}</b>
+            {e.traduzido_de.via === 'botanica' ? ' (regra botânica)' : ' (léxico)'}
+          </span>
+        )}
         {e.estado !== 'por_identificar' && <div className="marcas">
           {e.afirmacoes.some((a) => a.kind === 'annex_ii_banned') && <span className="marca-p proibido">Proibido na UE</span>}
           {[...new Set(e.afirmacoes.filter((a) => a.kind !== 'annex_ii_banned').map((a) => a.kind))].map((k) => (
@@ -147,7 +153,14 @@ export function Coluna({
 
         {a && (
           <>
-            <p className="veredicto-factual">{a.resumo.veredicto}</p>
+            <p className={`veredicto-factual${a.resumo.avaliavel ? '' : ' incerto'}`}>{a.resumo.veredicto}</p>
+            {a.resumo.lista_traduzida && (
+              <p className="aviso-cobertura">
+                As minhas listas estão em nomenclatura INCI, e esta parece estar traduzida. Não é um resultado limpo — é um
+                resultado em branco. O art. 19.º do Reg. 1223/2009 exige INCI na embalagem, por isso vale a pena procurar a
+                lista original no frasco ou na página do fabricante.
+              </p>
+            )}
             <div className="contagens">
               <div className={a.resumo.proibidos ? 'destaque' : ''}><b>{a.resumo.proibidos}</b><span>proibidos</span></div>
               <div><b>{a.resumo.com_limites}</b><span>com limites</span></div>
@@ -173,9 +186,18 @@ export function Coluna({
         <div className="editorial">
           <span className="sobrancelha">Leitura editorial — não é um facto regulamentar</span>
           <div className="cabeca">
-            <span className="indice">{a.editorial.indice}<span className="den">/100</span></span>
+            <span className="indice">
+              {a.editorial.indice ?? '—'}
+              {a.editorial.indice !== null && <span className="den">/100</span>}
+            </span>
             <span className="veredicto">{a.editorial.veredicto}</span>
           </div>
+          {a.editorial.indice === null && (
+            <p className="aviso">
+              Sem índice: reconheci entradas a menos para que um número significasse alguma coisa. Preferir um traço a um
+              número inventado é o ponto.
+            </p>
+          )}
           <p className="aviso">
             Este número é julgamento meu, não uma medição. Os anexos da UE classificam por <i>classe de perigo</i>, não por
             severidade — somá-los num índice é uma escolha, e é discutível. Os factos acima são verificáveis; isto é uma

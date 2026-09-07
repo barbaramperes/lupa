@@ -67,6 +67,11 @@ export interface Substance {
   ec: string[];
   /** todas as formas normalizadas que apontam para esta substância */
   names_norm: string[];
+  /** Entrada que declara uma COMBINAÇÃO ("(AND)" no nome de glossário). A
+   *  restrição aplica-se ao conjunto. Estas entradas listam o número CAS de
+   *  cada componente, por isso a ponte por CAS tem de as ignorar: juntar por
+   *  CAS reatribuiria a identidade do componente à combinação inteira. */
+  combinacao?: boolean;
 }
 
 export interface CoreBundle {

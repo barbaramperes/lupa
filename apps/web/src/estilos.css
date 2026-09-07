@@ -216,3 +216,17 @@ textarea::placeholder { color:var(--tinta3); }
 }
 .condicoes[open] summary { margin-bottom:3px; }
 .condicoes dd { max-height:9.5em; overflow-y:auto; }
+
+.veredicto-factual.incerto { color: var(--tinta2); }
+.aviso-cobertura {
+  padding:0 13px 9px; font-size:12.5px; color:var(--aviso);
+  max-width:70ch;
+}
+
+/* A tradução é um passo a mais entre o rótulo e o veredicto. Fica à vista. */
+.traduzido {
+  font-family:var(--mono); font-size:10.5px; color:var(--acento);
+  background:var(--acento-suave); border:1px dashed var(--acento);
+  padding:1px 6px; border-radius:2px; align-self:flex-start;
+}
+.traduzido b { font-weight:500; }

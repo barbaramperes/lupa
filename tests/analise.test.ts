@@ -134,3 +134,79 @@ describe('nomes INCI embutidos no nome químico do Anexo II', () => {
     }
   });
 });
+
+describe('combinações declaradas com (AND)', () => {
+  it('não atribui a restrição da combinação a um componente sozinho', () => {
+    // Anexo V entrada 59: "CITRIC ACID (AND) SILVER CITRATE", sistema
+    // conservante à base de prata com limite de 0,2%. O ácido cítrico é
+    // regulador de pH em quase todos os cosméticos; herdar essa restrição
+    // seria um falso positivo em massa.
+    const a = corre('Aqua, Glycerin, Citric Acid');
+    const acido = a.entradas.find((e) => e.raw === 'Citric Acid')!;
+    const refs = acido.afirmacoes.map((c) => `${c.source.annex}/${c.payload.reference_number}`);
+    expect(refs, 'ácido cítrico não pode herdar a entrada V/59').not.toContain('V/59');
+  });
+
+  it('a combinação inteira continua a ser reconhecida', () => {
+    const a = corre('Aqua, Citric Acid (and) Silver Citrate');
+    const combo = a.entradas.find((e) => /silver citrate/i.test(e.raw));
+    expect(combo?.estado).toBe('reconhecido');
+  });
+});
+
+describe('guarda de cobertura', () => {
+  it('recusa avaliar um rótulo que não conseguiu ler', () => {
+    // Um rótulo em português: nenhuma entrada corresponde à nomenclatura INCI.
+    // Antes desta guarda dava "nenhuma entrada consta dos anexos" com índice
+    // 100 — indistinguível de um produto genuinamente sem restrições.
+    const pt = corre('Água, manteiga de Butyrospermum Parkii, extrato da folha de Aloe Barbadensis, óleo da fruta Olea Europaea, glicerina, amido de Zea Mays, estearato de glicerila SE, álcool cetílico, esqualeno, goma xantana, tocoferol');
+    expect(pt.resumo.lista_traduzida).toBe(true);
+    expect(pt.resumo.avaliavel, 'nada encontrado e lista incompreendida').toBe(false);
+    expect(pt.editorial.indice, 'sem base para um número, não se mostra número').toBeNull();
+    expect(pt.resumo.veredicto).toMatch(/não foi possível avaliar/i);
+    expect(pt.resumo.veredicto).toMatch(/traduzida/i);
+    expect(pt.resumo.veredicto).not.toMatch(/nenhuma entrada consta/i);
+  });
+
+  it('avalia normalmente quando reconheceu o suficiente', () => {
+    const en = corre('Aqua, Benzyl Alcohol, Salicylic Acid, Sorbic Acid, Limonene, Linalool, Glycerin');
+    expect(en.resumo.avaliavel).toBe(true);
+    expect(en.editorial.indice).not.toBeNull();
+  });
+
+  it('uma lista INCI com poucos ingredientes regulados continua avaliável', () => {
+    // O erro que esta guarda NÃO pode cometer: confundir "a maioria destes
+    // ingredientes não é regulada" — que é o caso normal de qualquer rótulo —
+    // com "não percebi nada". Um gel de banho real: 18 entradas, 4 nos anexos.
+    const gel = corre('AQUA (WATER), LAURYL GLUCOSIDE, SODIUM LAUROYL SARCOSINATE, COCAMIDOPROPYL BETAINE, GLYCERIN, BENZYL ALCOHOL, PARFUM (FRAGRANCE), PEG-120 METHYL GLUCOSE DIOLEATE, INULIN, SODIUM CHLORIDE, CITRIC ACID, TETRAMETHYL ACETYLOCTAHYDRONAPHTHALENES, SODIUM GLUCONATE, DEHYDROACETIC ACID, FRUCTOSE, GUAR HYDROXYPROPYLTRIMONIUM CHLORIDE, SODIUM BENZOATE, ALOE BARBADENSIS LEAF JUICE POWDER');
+    expect(gel.resumo.cobertura).toBeLessThan(0.35);
+    expect(gel.resumo.avaliavel, 'taxa baixa não é sinal de incompreensão').toBe(true);
+    expect(gel.editorial.indice).not.toBeNull();
+  });
+
+  it('não penaliza um rótulo curto e genuinamente simples', () => {
+    const curto = corre('Aqua, Glycerin, Xanthan Gum');
+    expect(curto.resumo.avaliavel, 'poucas entradas: a cobertura não é sinal').toBe(true);
+  });
+});
+
+describe('nome de declaração obrigatória escondido nas condições', () => {
+  it('reconhece o nome que a lei manda escrever no rótulo', () => {
+    // Anexo III/351 cobre a laranja doce e a amarga, e o texto das condições
+    // diz que a presença "shall be indicated as 'Citrus Aurantium Peel Oil'".
+    // É esse o nome que aparece no frasco — e não estava no índice, porque a
+    // coluna do glossário só tem os dois nomes botânicos.
+    const a = corre('Aqua, Glycerin, Citrus Aurantium Peel Oil, Tocopherol');
+    const oleo = a.entradas.find((e) => /citrus aurantium/i.test(e.raw))!;
+    expect(oleo.estado).toBe('reconhecido');
+    expect(oleo.afirmacoes.map((c) => `${c.source.annex}/${c.payload.reference_number}`)).toContain('III/351');
+  });
+
+  it('apanha os restantes óleos essenciais com nome de declaração próprio', () => {
+    for (const nome of ['Eucalyptus Globulus Oil', 'Eugenia Caryophyllus Oil', 'Cananga Odorata Oil', 'Lemongrass Oil']) {
+      const a = corre(`Aqua, Glycerin, ${nome}`);
+      const e = a.entradas.find((x) => x.raw === nome)!;
+      expect(e.estado, nome).toBe('reconhecido');
+    }
+  });
+});

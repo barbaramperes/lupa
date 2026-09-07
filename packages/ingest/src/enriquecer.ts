@@ -50,6 +50,11 @@ export function enriquecerComPonte(
 
   for (const s of nucleo.substances) {
     if (!s.cas.length) continue;
+    // Uma combinação lista o CAS de cada componente. Juntar por CAS traria os
+    // sinónimos do componente e devolveria à combinação a identidade que a
+    // regra do "(AND)" acabou de lhe tirar — o ácido cítrico voltaria a
+    // arrastar a restrição de prata do Anexo V, entrada 59.
+    if (s.combinacao) continue;
     comCas++;
 
     const candidatos = new Set<string>();

@@ -1,5 +1,6 @@
 import { Matcher } from './match';
-import { segment } from './normalize';
+import { segment, normalize } from './normalize';
+import { traduzirPt, pareceEscritoEmPortugues } from './portugues';
 import { SEVERIDADE_REGULAMENTAR, type Claim, type CoreBundle, type MatchState, type Substance } from './types';
 
 export type TipoCmr = 'carcinogenico' | 'mutagenico' | 'reprotoxico';
@@ -40,11 +41,28 @@ export interface Entrada {
   afirmacoes: Claim[];
   cmr: Cmr[];
   sugestao?: { candidato: string; distancia: number; via: 'aproximada' | 'ocr' };
+  /** Preenchido quando a entrada só foi reconhecida depois de traduzida de
+   *  português para INCI. Fica visível na interface porque a tradução é um
+   *  passo a mais entre o rótulo e o veredicto, e quem lê tem direito a saber
+   *  que ele existiu. */
+  traduzido_de?: { original: string; inci: string; via: 'lexico' | 'botanica' };
 }
 
 export interface Resumo {
   /** frase factual derivada só dos anexos, nunca do índice editorial */
   veredicto: string;
+  /** fração das entradas que foi possível reconhecer */
+  cobertura: number;
+  /** A lista parece escrita numa língua que não é a nomenclatura INCI. */
+  lista_traduzida: boolean;
+  /** Falso quando não há nada a reportar E a lista não foi compreendida.
+   *
+   *  Um rótulo em português dava zero reconhecimentos, zero alertas e índice
+   *  100 — indistinguível de um produto genuinamente limpo. Mas a guarda não
+   *  pode ir ao ponto de calar um achado: se se encontrou uma substância
+   *  proibida no meio de uma lista traduzida, isso é um facto e reporta-se.
+   *  Um facto encontrado vence sempre a incerteza sobre o que ficou por ler. */
+  avaliavel: boolean;
   total: number;
   reconhecidos: number;
   sugestoes: number;
@@ -53,12 +71,16 @@ export interface Resumo {
   com_limites: number;
   com_cmr: number;
   reprotoxicos: number;
+  /** entradas reconhecidas só depois de traduzidas de português */
+  traduzidos: number;
   /** posição da entrada que traz a conjunção declarando um blend, se houver */
   blend_na_posicao: number | null;
 }
 
 export interface LeituraEditorial {
-  indice: number;
+  /** null quando a cobertura é baixa demais. Mostrar um número calculado
+   *  sobre entradas que não se reconheceram é inventar precisão. */
+  indice: number | null;
   /** a fórmula em texto, para poder ser lida por quem vê o número */
   formula: string;
   penalizacoes: Array<{ entrada: string; motivo: string; pontos: number }>;
@@ -109,6 +131,31 @@ export function analisar(nucleo: CoreBundle, matcher: Matcher, texto: string, mo
       }
       return { ...s, estado: 'reconhecido' as MatchState, no_blend: noBlend(s.pos), substancias, afirmacoes, cmr };
     }
+    // Tradução PT→INCI. Só vale se produzir um nome que EXISTE no índice:
+    // uma tradução errada não encontra nada e a entrada fica "por
+    // identificar". Traduzir mal nunca gera um alerta.
+    const trad = traduzirPt(s.raw);
+    if (trad) {
+      const idsTrad = matcher.exata(normalize(trad.inci));
+      if (idsTrad) {
+        const substancias = idsTrad.map((i) => porId.get(i)).filter(Boolean) as Substance[];
+        const afirmacoes = idsTrad
+          .flatMap((i) => claimsPorId.get(i) ?? [])
+          .sort((a, b) => SEVERIDADE_REGULAMENTAR[b.kind] - SEVERIDADE_REGULAMENTAR[a.kind]);
+        const cmr: Cmr[] = [];
+        for (const a of afirmacoes) for (const c of extrairCmr(a.payload.cmr)) {
+          if (!cmr.some((x) => x.tipo === c.tipo && x.categoria === c.categoria)) cmr.push(c);
+        }
+        return {
+          ...s,
+          estado: 'reconhecido' as MatchState,
+          no_blend: noBlend(s.pos),
+          substancias, afirmacoes, cmr,
+          traduzido_de: { original: s.raw, inci: trad.inci, via: trad.via },
+        };
+      }
+    }
+
     const sug = matcher.sugere(s.norm);
     return {
       ...s,
@@ -119,8 +166,27 @@ export function analisar(nucleo: CoreBundle, matcher: Matcher, texto: string, mo
     };
   });
 
+  const reconhecidos = entradas.filter((e) => e.estado === 'reconhecido').length;
+  const cobertura = entradas.length ? reconhecidos / entradas.length : 0;
+
+  /* Uma taxa de correspondência baixa NÃO é sinal de incompreensão: a maioria
+   * dos ingredientes de qualquer rótulo é autorizada sem restrição e por isso
+   * não consta de anexo nenhum. Um gel de banho com 18 ingredientes e 4 nos
+   * anexos é um resultado correto e comum.
+   *
+   * O que é sinal de incompreensão é a lista estar escrita numa língua que
+   * não é a nomenclatura INCI. Esse mede-se diretamente, olhando para a forma
+   * das entradas que não foram reconhecidas. */
+  const naoLidas = entradas.filter((e) => e.estado === 'por_identificar');
+  const emPortugues = naoLidas.filter((e) => pareceEscritoEmPortugues(e.raw)).length;
+  const fracaoPt = entradas.length ? emPortugues / entradas.length : 0;
+  const listaTraduzida = entradas.length >= 5 && fracaoPt >= 0.4;
+
   const resumo: Resumo = {
     veredicto: '',
+    cobertura,
+    lista_traduzida: listaTraduzida,
+    avaliavel: true, // recalculado abaixo, depois de se saber o que se achou
     total: entradas.length,
     reconhecidos: entradas.filter((e) => e.estado === 'reconhecido').length,
     sugestoes: entradas.filter((e) => e.estado === 'sugestao').length,
@@ -128,6 +194,7 @@ export function analisar(nucleo: CoreBundle, matcher: Matcher, texto: string, mo
     proibidos: entradas.filter((e) => e.afirmacoes.some((a) => a.kind === 'annex_ii_banned')).length,
     com_limites: entradas.filter((e) => e.afirmacoes.some((a) => a.kind !== 'annex_ii_banned')).length,
     com_cmr: entradas.filter((e) => e.cmr.length > 0).length,
+    traduzidos: entradas.filter((e) => e.traduzido_de).length,
     reprotoxicos: entradas.filter((e) => e.cmr.some((c) => c.tipo === 'reprotoxico')).length,
     blend_na_posicao: blendPos,
   };
@@ -169,18 +236,27 @@ export function analisar(nucleo: CoreBundle, matcher: Matcher, texto: string, mo
     penalizacoes.push({ entrada: e.raw, motivo: motivos.join(' · '), pontos: Math.round(final * 10) / 10 });
   }
 
-  let indice = Math.max(0, Math.round(100 - total));
+  let indice: number | null = Math.max(0, Math.round(100 - total));
   if (temProibido) indice = Math.min(indice, 25);
+  // O índice cai sempre que a lista está traduzida, mesmo havendo achados: com
+  // parte das entradas por ler, o número só pode ser um limite superior, e
+  // apresentar um limite superior como se fosse medição é o erro a evitar.
+  if (listaTraduzida) indice = null;
 
   /** O veredicto descreve o que os anexos dizem, e nada mais. Não deriva do
    *  índice: derivar dele permitiria a contradição de anunciar "sem alertas"
    *  numa lista que mostra uma classificação reprotóxica. */
+  // Só se recusa avaliar quando não há NADA para dizer. Um achado é um facto
+  // e reporta-se, mesmo que o resto da lista tenha ficado por ler.
+  resumo.avaliavel = !(listaTraduzida && resumo.reconhecidos === 0);
+
   const veredicto =
       resumo.proibidos > 0 ? 'Contém substância proibida na UE'
     : resumo.reprotoxicos > 0 ? 'Contém classificação de toxicidade reprodutiva'
     : resumo.com_cmr > 0 ? 'Contém classificação CMR harmonizada'
     : resumo.com_limites > 0 ? 'Só substâncias autorizadas, algumas sujeitas a limites'
     : resumo.reconhecidos > 0 ? 'Nada sujeito a restrição nos anexos II a VI'
+    : listaTraduzida ? 'Não foi possível avaliar: a lista parece estar traduzida e não em nomenclatura INCI'
     : 'Nenhuma entrada consta dos anexos II a VI';
 
   resumo.veredicto = veredicto;

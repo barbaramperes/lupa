@@ -1,0 +1,26 @@
+{
+  "_nota": "Rótulos reais transcritos de fotografias, set 2026. Valem mais que qualquer benchmark publicado: são a única coisa que apanha uma regressão na cadeia inteira, da segmentação ao veredicto.",
+  "rotulos": [
+    {
+      "nome": "BAM and BOO — creme facial (Açores)",
+      "fonte": "thebamandboo.com",
+      "lista": "Aqua, Glycine Soja Oil*, Olea Europaea (Olive) Fruit Oil*, Simmondsia Chinensis (Jojoba) Seed Oil*, Glycerin, Caprylic/Capric Triglyceride, Hydrogenated Coco-Glycerides, Theobroma Cacao Seed Butter*, Butyrospermum Parkii (Shea) Butter*, Glyceryl Stearate SE, Rosa Moschata (Rosehip) Seed Oil*, Parfum, Citrus Aurantium Peel Oil, Sorbitan Stearate, Sucrose Cocoate, Sodium PCA, Xantham Gum, Tocopherol, Limonene**, Linalol**, Terpineol**, Eugenol**, Pinene**, Linalyl Acetate**",
+      "espera": { "lista_traduzida": false, "avaliavel": true, "proibidos": 0, "reconhece": ["Limonene", "Eugenol", "Citrus Aurantium Peel Oil"] }
+    },
+    {
+      "nome": "Avril creme neutro — lista traduzida",
+      "lista": "Aqua (água), triglicerídeo caprílico / cáprico, oleato de decil, estearato de glicerila SE, óleo orgânico de Prunus amygdalus dulcis (amêndoa doce), álcool cetearílico, manteiga de Butyrospermum parkii (karité) orgânica, glicerina, filtrado de fermento de raiz de Leuconostoc / rabanete, folha de Aloe barbadensis suco em pó orgânico, cetearil glucosídeo, goma xantana, microcristalino celulose, óleo de glicina azul (soja), tocoferol, caprilato de glicerila, levulinato de sódio, ácido láctico, anisato de sódio.",
+      "espera": { "lista_traduzida": true, "avaliavel": false, "indice_nulo": true }
+    },
+    {
+      "nome": "Gel de banho (Notino) — INCI com poucos ingredientes regulados",
+      "lista": "AQUA (WATER), LAURYL GLUCOSIDE, SODIUM LAUROYL SARCOSINATE, COCAMIDOPROPYL BETAINE, GLYCERIN, BENZYL ALCOHOL, PARFUM (FRAGRANCE), PEG-120 METHYL GLUCOSE DIOLEATE, INULIN, SODIUM CHLORIDE, CITRIC ACID, TETRAMETHYL ACETYLOCTAHYDRONAPHTHALENES, SODIUM GLUCONATE, DEHYDROACETIC ACID, FRUCTOSE, GUAR HYDROXYPROPYLTRIMONIUM CHLORIDE, SODIUM BENZOATE, ALOE BARBADENSIS LEAF JUICE POWDER.",
+      "espera": { "lista_traduzida": false, "avaliavel": true, "proibidos": 0, "reconhece": ["BENZYL ALCOHOL", "DEHYDROACETIC ACID", "SODIUM BENZOATE"], "nao_reconhece": ["CITRIC ACID"] }
+    },
+    {
+      "nome": "Loção corporal — lista traduzida",
+      "lista": "Água, manteiga de Butyrospermum Parkii*, extrato da folha de Aloe Barbadensis*, óleo da fruta Olea Europaea*, glicerina**, poliglicerol-3 dicitrato/estearato, amido de Zea Mays*, coco-caprilato, estearato de glicerila SE, caprilato de glicerila, óleo da semente de Prunus Armeniaca*, óleo da semente de Simmondsia Chinensis*, beta-sitosterol, hialuronato de sódio, álcool cetílico, esqualeno, goma xantana, tocoferol.",
+      "espera": { "lista_traduzida": true, "avaliavel": false, "indice_nulo": true }
+    }
+  ]
+}

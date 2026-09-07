@@ -142,6 +142,39 @@ export function extrairInciEmbutido(nomeQuimico: string): string[] {
   return out;
 }
 
+/** O nome que a lei MANDA escrever no rótulo nem sempre é o nome do glossário.
+ *  Dezasseis entradas do Anexo III dizem, no texto das condições, que a
+ *  presença "shall be indicated as 'X' in the list of ingredients" — e X é o
+ *  nome que aparece no frasco, não os dois ou três nomes botânicos da coluna
+ *  do glossário.
+ *
+ *  São todas óleos essenciais e alergénios de fragrância: Citrus Aurantium
+ *  Peel Oil, Eucalyptus Globulus Oil, Eugenia Caryophyllus Oil, Cananga
+ *  Odorata Oil, Myroxylon Pereirae, Rose Ketones, Citral. Ou seja,
+ *  precisamente o vocabulário dos rótulos de cosmética natural. Sem esta
+ *  extração, o nome legalmente obrigatório não estava no índice. */
+export function extrairNomeDeDeclaracao(linha: string[]): string[] {
+  const texto = linha.join(' ');
+  const out: string[] = [];
+  const re = /shall be indicated as\s*[‘'"]([^’'"]+)[’'"]/gi;
+  let m: RegExpExecArray | null;
+  while ((m = re.exec(texto))) {
+    const nome = m[1]!.trim();
+    if (nome.length < 3 || nome.length > 120) continue;
+    out.push(nome);
+    // Alguns nomes de declaração cobrem duas formas numa só string —
+    // "Cananga Odorata Oil/Extract", "Myroxylon Pereirae Oil/ Extract". No
+    // frasco aparece uma ou outra, nunca a barra, por isso indexam-se ambas
+    // com a base repetida.
+    const duplo = nome.match(/^(.*?)\s*([A-Za-z]+)\s*\/\s*([A-Za-z]+)$/);
+    if (duplo) {
+      const base = duplo[1]!.trim();
+      if (base) { out.push(`${base} ${duplo[2]}`); out.push(`${base} ${duplo[3]}`); }
+    }
+  }
+  return out;
+}
+
 /** Células multi-valor explodem. Guardadas inteiras, funcionam como ímanes
  *  de correspondência aproximada e envenenam o matcher. */
 /** O CosIng usa "-" como marcador de "não aplicável". Tratá-lo como texto faz
@@ -183,6 +216,19 @@ export function explodirNomes(celula: string): string[] {
  *  SORBATE" produz dois fragmentos longos e separa-se. Na dúvida, não separa:
  *  um nome por indexar é um "por identificar" honesto, um fragmento mau é um
  *  alerta falso. */
+/** No CosIng, "(AND)" no nome de glossário declara uma COMBINAÇÃO: a restrição
+ *  aplica-se ao conjunto, não a cada parte.
+ *
+ *  É a mesma convenção do "and" numa lista INCI, e ignorá-la produzia o pior
+ *  falso positivo desta base: o Anexo V, entrada 59, é
+ *  "CITRIC ACID (AND) SILVER CITRATE" — um sistema conservante à base de prata,
+ *  com limite de 0,2% correspondente a 0,0024% de prata. Separado em dois, o
+ *  ácido cítrico sozinho passava a arrastar essa restrição, e o ácido cítrico
+ *  é regulador de pH em quase todos os cosméticos que existem. */
+export function ehCombinacao(nomeGlossario: string): boolean {
+  return /\(\s*and\s*\)/i.test(nomeGlossario);
+}
+
 export function explodirIdentificados(celula: string): string[] {
   const base = explodirNomes(celula);
   const out: string[] = [];
@@ -229,12 +275,18 @@ export function construirNucleo(lidos: AnexoLido[], dataExtracao: string): CoreB
       const ec = explodir(linha[esp.colEc] ?? '').filter((e) => /^\d{3}-\d{3}-\d$/.test(e));
       const identificados = explodirIdentificados(linha[esp.colIdentificados] ?? '');
 
-      const nomesCandidatos = [
-        ...explodirNomes(inci),
-        ...explodirNomes(nomeQuimico),
-        ...extrairInciEmbutido(nomeQuimico),
-        ...identificados,
-      ].filter(Boolean);
+      // Numa combinação, só o nome do conjunto é indexado. Um componente
+      // sozinho não está coberto por esta entrada, e afirmá-lo seria pôr uma
+      // restrição de prata em cima de um regulador de pH.
+      const nomesCandidatos = ehCombinacao(inci)
+        ? [inci, nomeQuimico].filter(Boolean)
+        : [
+            ...explodirNomes(inci),
+            ...explodirNomes(nomeQuimico),
+            ...extrairInciEmbutido(nomeQuimico),
+            ...extrairNomeDeDeclaracao(linha),
+            ...identificados,
+          ].filter(Boolean);
       const nomesNorm = [...new Set(
         nomesCandidatos.map(normalize).filter((n) => n.length >= 2 && n.length <= COMPRIMENTO_MAXIMO_INDEXAVEL),
       )];
@@ -269,6 +321,7 @@ export function construirNucleo(lidos: AnexoLido[], dataExtracao: string): CoreB
           chem_name: nomeQuimico || undefined,
           cas, ec,
           names_norm: [...new Set(nomesNorm)],
+          ...(ehCombinacao(inci) ? { combinacao: true } : {}),
         });
       }
 
