@@ -210,3 +210,39 @@ describe('nome de declaração obrigatória escondido nas condições', () => {
     }
   });
 });
+
+describe('proibições condicionais do Anexo II', () => {
+  it('a vaselina não é apresentada como proibida', () => {
+    // Anexo II/904: "Petrolatum, except if the full refining history is known
+    // and it can be shown that the substance from which it is produced is not
+    // a carcinogen". A exceção é o regime normal — é dela que depende toda a
+    // vaselina refinada em uso legal na Europa. Apresentar isto como
+    // "proibido" condenaria o CeraVe, o Aveeno e a vaselina da farmácia.
+    const a = corre('Aqua, Glycerin, Petrolatum, Cetearyl Alcohol, Ceramide NP');
+    expect(a.resumo.proibidos, 'não é proibição absoluta').toBe(0);
+    expect(a.resumo.proibidos_condicionais).toBe(1);
+    expect(a.resumo.veredicto).toMatch(/salvo condição/i);
+    expect(a.editorial.indice, 'uma condicional não trava o índice em 25').toBeGreaterThan(80);
+  });
+
+  it('a cláusula de exceção fica disponível para ser mostrada', () => {
+    const a = corre('Aqua, Petrolatum');
+    const v = a.entradas.find((e) => e.raw === 'Petrolatum')!;
+    const c = v.afirmacoes.find((x) => x.payload.excecao)!;
+    expect(c.payload.excecao).toMatch(/full refining history/i);
+  });
+
+  it('a classificação CMR de uma entrada condicional não é arrastada', () => {
+    // A entrada 904 traz "Carcinogenic Cat. 1B" — mas isso descreve a vaselina
+    // MAL refinada, a que a exceção exclui, e não a que está no frasco.
+    const a = corre('Aqua, Glycerin, Petrolatum, Cetearyl Alcohol');
+    expect(a.resumo.com_cmr, 'não se chama cancerígeno a um creme de farmácia').toBe(0);
+  });
+
+  it('uma proibição absoluta continua a travar tudo', () => {
+    const a = corre('Aqua, Glycerin, Hydroquinone');
+    expect(a.resumo.proibidos).toBe(1);
+    expect(a.resumo.veredicto).toMatch(/proibida na UE/i);
+    expect(a.editorial.indice).toBeLessThanOrEqual(25);
+  });
+});

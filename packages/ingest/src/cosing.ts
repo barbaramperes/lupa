@@ -142,6 +142,38 @@ export function extrairInciEmbutido(nomeQuimico: string): string[] {
   return out;
 }
 
+const RE_EXCECAO = /,?\s*\b(except if|except when|except those|unless|with the exception of|other than)\b/i;
+
+/** Separa o nome da substância da cláusula de exceção que o acompanha.
+ *  "Petrolatum, except if the full refining history is known…" tem de dar
+ *  o nome "Petrolatum" e a condição em separado: sem isso, o nome indexado
+ *  é a frase inteira e a proibição parece absoluta. */
+/** Uma remissão aponta para um uso estreito autorizado noutro anexo. */
+const RE_REMISSAO = /\b(annex|anexo)\s+(I{1,3}V?|VI?)\b|\bentry\s+\d|\breference\s+No\b|\blisted (in|under)\b|\bspecified elsewhere\b|\bincluded in\b|\bregulated elsewhere\b|\bset out\b|\blaid down\b/i;
+
+export function separarExcecao(nome: string): { base: string; excecao?: string; remissao?: boolean } {
+  const m = nome.match(RE_EXCECAO);
+  if (!m || m.index === undefined) return { base: nome };
+  const excecao = nome.slice(m.index).trim().replace(/^,\s*/, '');
+  return {
+    base: nome.slice(0, m.index).trim().replace(/[,;]$/, ''),
+    excecao,
+    // As 58 exceções do Anexo II são de DUAS naturezas, e confundi-las é
+    // perigoso nos dois sentidos:
+    //
+    // 47 são condições de proveniência da matéria-prima — "except if the full
+    // refining history is known". A exceção é a via legal normal: é dela que
+    // depende toda a vaselina refinada em uso na Europa. Presume-se cumprida.
+    //
+    // 11 são remissões para um uso estreito autorizado noutro anexo — a
+    // hidroquinona é proibida "with the exception of entry 14 in Annex III",
+    // que é 0,02% em unhas artificiais de uso profissional. Num creme de
+    // corpo, isso é proibido e ponto final. Tratar como condicional seria
+    // absolver uma substância que está mesmo banida para este uso.
+    ...(RE_REMISSAO.test(excecao) ? { remissao: true } : {}),
+  };
+}
+
 /** O nome que a lei MANDA escrever no rótulo nem sempre é o nome do glossário.
  *  Dezasseis entradas do Anexo III dizem, no texto das condições, que a
  *  presença "shall be indicated as 'X' in the list of ingredients" — e X é o
@@ -265,7 +297,8 @@ export function construirNucleo(lidos: AnexoLido[], dataExtracao: string): CoreB
     let ultimoIdPorRef: { ref: string; id: string } | null = null;
     for (const linha of lido.dados) {
       const ref = (linha[0] ?? '').trim();
-      const nomeQuimico = limpo(linha[esp.colNomeQuimico]);
+      const nomeQuimicoBruto = limpo(linha[esp.colNomeQuimico]);
+      const { base: nomeQuimico, excecao, remissao } = separarExcecao(nomeQuimicoBruto);
       const inci = esp.colInci === null ? '' : limpo(linha[esp.colInci]);
 
       const cas = explodir(linha[esp.colCas] ?? '').filter((c) => {
@@ -335,6 +368,10 @@ export function construirNucleo(lidos: AnexoLido[], dataExtracao: string): CoreB
           outros: esp.anexo === 'II' ? undefined : limpo(linha[esp.anexo === 'IV' ? 8 : 7]) || undefined,
           advertencias: esp.anexo === 'II' ? undefined : limpo(linha[esp.anexo === 'IV' ? 9 : 8]) || undefined,
           cmr: limpo(linha[esp.anexo === 'II' ? 9 : esp.anexo === 'IV' ? 15 : 14]) || undefined,
+          // uma remissão não abranda a proibição: é proibido, salvo num uso
+          // estreito que este produto quase de certeza não é
+          excecao: remissao ? undefined : excecao,
+          uso_estreito_permitido: remissao ? excecao : undefined,
         },
         source: {
           dataset: 'cosing',

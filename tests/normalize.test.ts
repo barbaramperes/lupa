@@ -61,3 +61,20 @@ describe('segmentação de rótulo', () => {
     expect(s.map((x) => x.raw)).toEqual(['Sucrose', 'Coco Glucoside', 'Glycerine']);
   });
 });
+
+describe('separadores alternativos', () => {
+  it('separa listas escritas com travessões', () => {
+    // A Uriage publica assim. Sem isto a lista inteira era uma entrada só.
+    const s = segment('AQUA — BUTYROSPERMUM PARKII BUTTER — GLYCERIN — SQUALANE');
+    expect(s.map((x) => x.raw)).toEqual(['AQUA', 'BUTYROSPERMUM PARKII BUTTER', 'GLYCERIN', 'SQUALANE']);
+  });
+
+  it('não parte hífenes dentro de um nome', () => {
+    // PEG-100, C10-30 e Coco-Caprylate são nomes únicos. O travessão separador
+    // vem rodeado de espaços; o hífen interno nunca vem.
+    const s = segment('PEG-100 STEARATE, ACRYLATES/C10-30 ALKYL ACRYLATE CROSSPOLYMER, COCO-CAPRYLATE');
+    expect(s.map((x) => x.raw)).toEqual([
+      'PEG-100 STEARATE', 'ACRYLATES/C10-30 ALKYL ACRYLATE CROSSPOLYMER', 'COCO-CAPRYLATE',
+    ]);
+  });
+});

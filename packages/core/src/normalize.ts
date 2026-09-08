@@ -72,7 +72,13 @@ export function segment(label: string): Segment[] {
     out.push({ raw: texto, norm, pos: out.length + 1, condicional, inicia_blend });
   };
 
-  for (const ch of label.replace(/[\n\r;•|\t]+/g, ',')) {
+  // Nem toda a gente separa por vírgula. A Uriage publica as listas com
+  // travessões, e sem isto a lista inteira virava uma entrada só — que depois
+  // não corresponde a nada e passa por "por identificar".
+  // Só se separa em travessão RODEADO DE ESPAÇOS: o hífen dentro de um nome
+  // (PEG-100, C10-30, Coco-Caprylate) nunca os tem, e parti-lo destruiria o nome.
+  const normalizado = label.replace(/\s+[—–]\s+/g, ',').replace(/[\n\r;•|\t]+/g, ',');
+  for (const ch of normalizado) {
     if (ch === '(' || ch === '[') depth++;
     else if (ch === ')' || ch === ']') depth = Math.max(0, depth - 1);
     if (ch === ',' && depth === 0) flush();

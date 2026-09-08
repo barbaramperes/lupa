@@ -215,3 +215,45 @@ São todas óleos essenciais e alergénios de fragrância: Citrus Aurantium Peel
 Oil, Eucalyptus Globulus Oil, Eugenia Caryophyllus Oil, Cananga Odorata
 Oil/Extract, Myroxylon Pereirae, Rose Ketones, Citral. Ou seja, exatamente o
 vocabulário dos rótulos de cosmética natural.
+
+---
+
+## D11 — Nem toda a proibição do Anexo II é uma proibição
+
+Analisar 44 produtos reais de farmácia e supermercado deu "PROIBIDO" ao CeraVe,
+ao Aveeno e à vaselina do Couto. Era falso, e a causa está no próprio texto da
+lei.
+
+**58 das 1758 entradas do Anexo II (3,3%) trazem uma cláusula de exceção
+dentro do nome da substância.** E são de duas naturezas que não se podem
+confundir:
+
+**47 são condições de proveniência da matéria-prima.** A entrada 904 é
+literalmente "Petrolatum, *except if the full refining history is known and it
+can be shown that the substance from which it is produced is not a
+carcinogen*". A exceção não é a raridade — é a via legal normal, e é dela que
+depende toda a vaselina refinada em uso na Europa. Um produto no mercado
+presume-se conforme, e quem tem de documentar a condição é o fabricante.
+Tratá-las como proibição condenaria metade da prateleira da farmácia.
+
+**11 são remissões para um uso estreito autorizado noutro anexo.** A
+hidroquinona é proibida "*with the exception of entry 14 in Annex III*" — que
+são 0,02% em unhas artificiais de uso profissional. Num creme de corpo isso
+não é exceção nenhuma: é proibido e ponto final. Tratá-las como condicionais
+absolveria uma substância genuinamente banida para o uso em causa.
+
+Consequências no modelo: contagem própria para condicionais, o índice deixa de
+travar em 25 por causa delas, e **a classificação CMR de uma entrada
+condicional não é arrastada** — o "Carcinogenic Cat. 1B" da entrada 904
+descreve a vaselina mal refinada, não a que está no frasco, e arrastá-lo dava
+"cancerígeno" a um creme de farmácia.
+
+## D12 — Separadores de lista que não são a vírgula
+
+A Uriage publica as listas INCI separadas por travessões. O segmentador só
+conhecia vírgulas, e por isso uma lista de 37 ingredientes virava UMA entrada,
+que depois não correspondia a nada e passava por "por identificar" — um
+produto inteiro invisível à análise, em silêncio.
+
+Só se separa em travessão rodeado de espaços: o hífen dentro de um nome
+(PEG-100, C10-30, Coco-Caprylate) nunca os tem, e parti-lo destruiria o nome.

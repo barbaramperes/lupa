@@ -55,6 +55,18 @@ export interface Claim {
     advertencias?: string;
     cmr?: string;
     codigos_h?: string[];
+    /** Texto da cláusula de exceção, quando a proibição é condicional.
+     *  58 das 1758 entradas do Anexo II proíbem uma substância "except if…",
+     *  "unless…" ou "with the exception of…" — e a exceção é o regime normal,
+     *  não a raridade. A vaselina é o caso de manual: proibida SALVO se o
+     *  histórico de refinação for conhecido, que é exatamente a condição que
+     *  todo o cosmético europeu com vaselina cumpre. Apresentar isto como
+     *  "proibido" condenaria metade da prateleira da farmácia. */
+    excecao?: string;
+    /** Remissão para um uso estreito autorizado noutro anexo. NÃO abranda a
+     *  proibição: a hidroquinona é proibida salvo 0,02% em unhas artificiais
+     *  de uso profissional, o que num creme de corpo não é exceção nenhuma. */
+    uso_estreito_permitido?: string;
   };
   source: Source;
 }

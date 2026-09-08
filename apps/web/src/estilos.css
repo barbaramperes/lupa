@@ -230,3 +230,10 @@ textarea::placeholder { color:var(--tinta3); }
   padding:1px 6px; border-radius:2px; align-self:flex-start;
 }
 .traduzido b { font-weight:500; }
+
+/* Uma proibição condicional não é uma proibição. Tem cor própria. */
+.marca-p.condicional { background:var(--aviso-suave); border-color:var(--aviso); color:var(--aviso); }
+.contagens .condicional b { color:var(--aviso); }
+.ent[data-tem="condicional"] .risca { background:var(--aviso); }
+.excecao { font-size:12px; color:var(--tinta2); max-width:72ch; }
+.excecao b { font-weight:500; color:var(--tinta); }

@@ -67,7 +67,12 @@ export interface Resumo {
   reconhecidos: number;
   sugestoes: number;
   por_identificar: number;
+  /** proibições absolutas */
   proibidos: number;
+  /** proibições com cláusula de exceção — "except if…", "unless…". A exceção
+   *  é o regime normal: é dela que depende toda a vaselina refinada, os
+   *  pigmentos de sulfato de bário e os derivados de petróleo em uso legal. */
+  proibidos_condicionais: number;
   com_limites: number;
   com_cmr: number;
   reprotoxicos: number;
@@ -126,8 +131,14 @@ export function analisar(nucleo: CoreBundle, matcher: Matcher, texto: string, mo
         .flatMap((i) => claimsPorId.get(i) ?? [])
         .sort((a, b) => SEVERIDADE_REGULAMENTAR[b.kind] - SEVERIDADE_REGULAMENTAR[a.kind]);
       const cmr: Cmr[] = [];
-      for (const a of afirmacoes) for (const c of extrairCmr(a.payload.cmr)) {
-        if (!cmr.some((x) => x.tipo === c.tipo && x.categoria === c.categoria)) cmr.push(c);
+      for (const a of afirmacoes) {
+        // Numa entrada condicional, a classificação CMR descreve a forma NÃO
+        // isenta — a vaselina mal refinada, não a que está no frasco. Arrastá-la
+        // para o resumo daria "cancerígeno 1B" a um creme de farmácia.
+        if (a.payload.excecao) continue;
+        for (const c of extrairCmr(a.payload.cmr)) {
+          if (!cmr.some((x) => x.tipo === c.tipo && x.categoria === c.categoria)) cmr.push(c);
+        }
       }
       return { ...s, estado: 'reconhecido' as MatchState, no_blend: noBlend(s.pos), substancias, afirmacoes, cmr };
     }
@@ -191,7 +202,8 @@ export function analisar(nucleo: CoreBundle, matcher: Matcher, texto: string, mo
     reconhecidos: entradas.filter((e) => e.estado === 'reconhecido').length,
     sugestoes: entradas.filter((e) => e.estado === 'sugestao').length,
     por_identificar: entradas.filter((e) => e.estado === 'por_identificar').length,
-    proibidos: entradas.filter((e) => e.afirmacoes.some((a) => a.kind === 'annex_ii_banned')).length,
+    proibidos: entradas.filter((e) => e.afirmacoes.some((a) => a.kind === 'annex_ii_banned' && !a.payload.excecao)).length,
+    proibidos_condicionais: entradas.filter((e) => e.afirmacoes.some((a) => a.kind === 'annex_ii_banned' && a.payload.excecao)).length,
     com_limites: entradas.filter((e) => e.afirmacoes.some((a) => a.kind !== 'annex_ii_banned')).length,
     com_cmr: entradas.filter((e) => e.cmr.length > 0).length,
     traduzidos: entradas.filter((e) => e.traduzido_de).length,
@@ -209,9 +221,13 @@ export function analisar(nucleo: CoreBundle, matcher: Matcher, texto: string, mo
     let pontos = 0;
     const motivos: string[] = [];
 
-    if (e.afirmacoes.some((a) => a.kind === 'annex_ii_banned')) {
+    if (e.afirmacoes.some((a) => a.kind === 'annex_ii_banned' && !a.payload.excecao)) {
       temProibido = true;
       pontos += 40; motivos.push('proibido no Anexo II');
+    } else if (e.afirmacoes.some((a) => a.kind === 'annex_ii_banned' && a.payload.excecao)) {
+      // Não trava o índice: a exceção é a via legal normal, e um produto no
+      // mercado europeu presume-se conforme com ela.
+      pontos += 6; motivos.push('proibido no Anexo II salvo condição');
     }
     for (const c of e.cmr) {
       pontos += PESO_CMR[c.categoria]!;
@@ -252,6 +268,7 @@ export function analisar(nucleo: CoreBundle, matcher: Matcher, texto: string, mo
 
   const veredicto =
       resumo.proibidos > 0 ? 'Contém substância proibida na UE'
+    : resumo.proibidos_condicionais > 0 ? 'Contém substância proibida salvo condição, que cabe ao fabricante cumprir'
     : resumo.reprotoxicos > 0 ? 'Contém classificação de toxicidade reprodutiva'
     : resumo.com_cmr > 0 ? 'Contém classificação CMR harmonizada'
     : resumo.com_limites > 0 ? 'Só substâncias autorizadas, algumas sujeitas a limites'

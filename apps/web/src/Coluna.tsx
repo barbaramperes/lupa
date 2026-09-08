@@ -56,7 +56,12 @@ function LinhaEntrada({ e, realcarRepr }: { e: Entrada; realcarRepr: boolean }) 
           </span>
         )}
         {e.estado !== 'por_identificar' && <div className="marcas">
-          {e.afirmacoes.some((a) => a.kind === 'annex_ii_banned') && <span className="marca-p proibido">Proibido na UE</span>}
+          {e.afirmacoes.some((a) => a.kind === 'annex_ii_banned' && !a.payload.excecao) && (
+            <span className="marca-p proibido">Proibido na UE</span>
+          )}
+          {e.afirmacoes.some((a) => a.kind === 'annex_ii_banned' && a.payload.excecao) && (
+            <span className="marca-p condicional">Proibido salvo condição</span>
+          )}
           {[...new Set(e.afirmacoes.filter((a) => a.kind !== 'annex_ii_banned').map((a) => a.kind))].map((k) => (
             <span key={k} className="marca-p limites">{ANEXO_ROTULO[k]}</span>
           ))}
@@ -73,8 +78,15 @@ function LinhaEntrada({ e, realcarRepr }: { e: Entrada; realcarRepr: boolean }) 
         {e.afirmacoes.map((a, i) => (
           <div className="afirmacao" key={i}>
             <span className="cabeca">
-              {ANEXO_ROTULO[a.kind]} · Anexo {ANEXO_NUM[a.kind]}, entrada {a.payload.reference_number}
+              {a.payload.excecao ? 'Proibido salvo condição' : ANEXO_ROTULO[a.kind]} · Anexo {ANEXO_NUM[a.kind]}, entrada{' '}
+              {a.payload.reference_number}
             </span>
+            {a.payload.excecao && (
+              <p className="excecao">
+                A proibição não é absoluta: <b>{limpar(a.payload.excecao)}</b>. Um produto no mercado europeu presume-se
+                conforme com esta condição — quem a tem de cumprir e documentar é o fabricante.
+              </p>
+            )}
             {a.payload.concentracao_maxima && (
               <dl><dt>máx.</dt><dd>{limpar(a.payload.concentracao_maxima)}</dd></dl>
             )}
@@ -163,6 +175,9 @@ export function Coluna({
             )}
             <div className="contagens">
               <div className={a.resumo.proibidos ? 'destaque' : ''}><b>{a.resumo.proibidos}</b><span>proibidos</span></div>
+              {a.resumo.proibidos_condicionais > 0 && (
+                <div className="condicional"><b>{a.resumo.proibidos_condicionais}</b><span>proibidos salvo condição</span></div>
+              )}
               <div><b>{a.resumo.com_limites}</b><span>com limites</span></div>
               <div className={a.resumo.reprotoxicos ? 'repr' : ''}><b>{a.resumo.reprotoxicos}</b><span>reprotóxicos</span></div>
               <div className="aberto"><b>{a.resumo.por_identificar}</b><span>por identificar</span></div>
