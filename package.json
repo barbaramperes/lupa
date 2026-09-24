@@ -8,7 +8,8 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "dev": "bash scripts/dev.sh",
-    "portas": "lsof -i tcp:8787 -i tcp:5178 || echo \"nada a correr\""
+    "portas": "lsof -i tcp:8787 -i tcp:5178 || echo \"nada a correr\"",
+    "publicar": "bash scripts/publicar.sh"
   },
   "devDependencies": {
     "@types/node": "^22.9.0",

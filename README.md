@@ -59,17 +59,21 @@ CosIng devolvem HTTP 200 com o shell de uma SPA, incluindo caminhos inventados.
 
 ## Deploy
 
-A app tem um segundo alvo de build que corre **sem servidor** — o motor é
-código puro e o núcleo é servido como ficheiro estático:
+A app está no ar em **https://barbaramperes.github.io/lupa/** — o build
+estático, que corre **sem servidor**: o motor é código puro e o núcleo é
+servido como ficheiro. Publica-se com um comando:
 
 ```bash
-cd apps/web && npx ng build --configuration static
+pnpm publicar
 ```
 
-O resultado em `apps/web/dist/lupa-web/browser` serve-se de qualquer
-alojamento estático. Há um workflow de GitHub Pages em
-`.github/workflows/pages.yml`, de disparo manual. Em conta gratuita o Pages
-exige repositório público.
+O script constrói, envia para o branch `gh-pages`, pede o build do Pages e
+**verifica que o bundle servido é o que acabou de construir** — um HTTP 200
+não chega, porque o Pages reconstrói o conteúdo anterior com ar de sucesso.
+
+Há também um workflow de GitHub Actions (`.github/workflows/pages.yml`), de
+disparo manual, para quando os runners estiverem disponíveis; nesta conta
+não estão, e o script não precisa deles.
 
 ## Três coisas que a app faz de propósito
 
