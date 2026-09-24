@@ -337,3 +337,29 @@ informação.
 partem a lista com regras diferentes: o segmentador respeita parênteses
 (`AQUA (WATER)` é um item), o filtro não. As posições podem divergir, e o
 nome é a única chave estável entre os dois.
+
+---
+
+## D16 — O repositório sai de ~/Downloads
+
+**Decidido por:** Bárbara, 24 set 2026, depois de o problema a bloquear quatro
+vezes seguidas.
+
+`~/Downloads` é uma pasta protegida pelo TCC do macOS. Uma aplicação sem
+autorização explícita consegue fazer `chdir()` para lá mas não consegue ler a
+pasta, e qualquer processo Node lançado a partir dali rebenta logo no arranque:
+
+    Error: EPERM: operation not permitted, uv_cwd
+        at process.wrappedCwd (...does_own_process_state:142:28)
+
+A assinatura é característica e vale a pena reconhecê-la: o `cd` **não** dá
+erro, falha o `process.cwd()` do processo filho. Não é o comando que está
+errado.
+
+Contorno que funciona sem permissão nenhuma, para quem ficar preso nisto:
+arrancar a partir da home com caminhos absolutos, para o `cwd` passar a ser
+`~` em vez da pasta protegida. Serve para a API; não serve para o `ng serve`,
+que procura o `angular.json` subindo a partir da pasta atual.
+
+O repositório está agora em `~/Projetos/lupa-rotulos`. Nenhum caminho absoluto
+estava escrito dentro do repo, por isso a mudança não lhe tocou.
