@@ -16,7 +16,13 @@
             "styles": [
               "src/estilos.css"
             ],
-            "polyfills": []
+            "polyfills": [],
+            "assets": [
+              {
+                "glob": "**/*",
+                "input": "public"
+              }
+            ]
           },
           "configurations": {
             "production": {
@@ -26,6 +32,17 @@
             "development": {
               "optimization": false,
               "sourceMap": true
+            },
+            "static": {
+              "optimization": true,
+              "outputHashing": "all",
+              "baseHref": "./",
+              "fileReplacements": [
+                {
+                  "replace": "src/environments/environment.ts",
+                  "with": "src/environments/environment.static.ts"
+                }
+              ]
             }
           },
           "defaultConfiguration": "production"

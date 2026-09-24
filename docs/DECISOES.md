@@ -363,3 +363,31 @@ que procura o `angular.json` subindo a partir da pasta atual.
 
 O repositório está agora em `~/Projetos/lupa-rotulos`. Nenhum caminho absoluto
 estava escrito dentro do repo, por isso a mudança não lhe tocou.
+
+---
+
+## D17 — Segundo alvo de build: estático, sem servidor
+
+Não substitui D1. É o mesmo código com o núcleo a vir de outro sítio.
+
+O motor de `packages/core` é código puro: o `analisar()` que a API executa
+corre no browser sem uma linha de diferença. A única coisa que muda é a
+origem do núcleo — um pedido à API, ou um ficheiro servido ao lado da app.
+`fileReplacements` no `angular.json` troca o `environment` e o serviço
+escolhe o caminho.
+
+Existe por uma razão prática: **deploy sem infraestrutura.** Um projeto de
+portefólio precisa de um URL, e um URL não pode depender de alguém ter a API
+a correr na sua máquina.
+
+Números: shell de 190 kB (55 kB transferidos), com o motor em chunks
+carregados a pedido (`analisar` 9,9 kB, `filtros` 5,7 kB, `match` 3,0 kB).
+O núcleo são 13,8 MB em bruto, ~2 MB comprimidos pelo servidor. A interface
+tem um sinal de carregamento próprio, porque 2 MB não são instantâneos e uma
+aplicação que parece bloqueada é pior do que uma que diz que está a carregar.
+
+`baseHref: './'` para funcionar tanto sob `/nome-do-repo/` no GitHub Pages
+como na raiz de qualquer outro alojamento, sem reconstruir.
+
+Verificado com a API desligada: veredicto, contagens e filtro corretos, zero
+erros de consola.

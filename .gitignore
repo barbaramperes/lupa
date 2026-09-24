@@ -19,3 +19,4 @@ apps/web/dist/
 # com atribuição — factos e critérios não são o documento. O ficheiro fica na
 # máquina para consulta, fora do repositório.
 data/filtros/*.pdf
+public/nucleo/core.json
