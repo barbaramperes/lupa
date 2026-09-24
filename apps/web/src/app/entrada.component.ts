@@ -22,6 +22,11 @@ import { ANEXO_NUM, ANEXO_ROTULO, CMR_ROTULO, limpar, type Entrada } from './mod
             <span class="marca-p aberto">Por identificar</span>
             @if (e().condicional) { <span class="marca-p aberto">Pode conter</span> }
             @if (e().no_blend) { <span class="marca-p blend">Matéria-prima composta</span> }
+            @if (filtroRegra(); as f) {
+              <span class="marca-p" [class.filtro-fora]="!f.condicional" [class.filtro-cond]="f.condicional">
+                {{ f.condicional ? 'Condicional' : 'Fora do teu filtro' }} · {{ f.regra }}
+              </span>
+            }
           </span>
         }
       </div>
@@ -40,6 +45,11 @@ import { ANEXO_NUM, ANEXO_ROTULO, CMR_ROTULO, limpar, type Entrada } from './mod
           }
           @if (e().condicional) { <span class="marca-p aberto">Pode conter</span> }
           @if (e().no_blend) { <span class="marca-p blend">Matéria-prima composta</span> }
+          @if (filtroRegra(); as f) {
+            <span class="marca-p" [class.filtro-fora]="!f.condicional" [class.filtro-cond]="f.condicional">
+              {{ f.condicional ? 'Condicional no teu filtro' : 'Fora do teu filtro' }} · {{ f.regra }}
+            </span>
+          }
         </div>
       }
 
@@ -98,6 +108,9 @@ import { ANEXO_NUM, ANEXO_ROTULO, CMR_ROTULO, limpar, type Entrada } from './mod
 export class EntradaComponent {
   readonly e = input.required<Entrada>();
   readonly realcarRepr = input(false);
+  /** Regra do filtro que apanhou esta entrada, se alguma. Vem do campo
+   *  separado da resposta — nunca de `afirmacoes`, que é o que a lei diz. */
+  readonly filtroRegra = input<{ regra: string; condicional: boolean } | null>(null);
 
   protected readonly limpar = limpar;
   protected readonly rotuloAnexo = (k: string) => ANEXO_ROTULO[k] ?? k;

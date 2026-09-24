@@ -24,6 +24,10 @@ let proximoId = 1;
           <p class="sub">O que a lei diz sobre cada ingrediente do rótulo, com a fonte de cada afirmação.</p>
         </div>
         <div class="comandos">
+          <button class="alternar filtro" [attr.aria-pressed]="filtroLigado()" (click)="alternarFiltro()"
+                  title="Aplica a tua lista de exclusão. É uma preferência, não um facto regulamentar — aparece em bloco separado e não entra nas contagens dos anexos.">
+            <span class="ponto"></span>O meu filtro
+          </button>
           <button class="alternar" [attr.aria-pressed]="realcarRepr()" (click)="alternarRepr()"
                   title="Realça as substâncias com classificação harmonizada de toxicidade reprodutiva (Repr. 1A, 1B ou 2). É um critério público e fixo, igual para toda a gente.">
             <span class="ponto"></span>Realçar reprotóxicos
@@ -43,6 +47,7 @@ let proximoId = 1;
               [unica]="fichas().length === 1"
               [exemplos]="i === 0 ? exemplos : []"
               [realcarRepr]="realcarRepr()"
+              [filtroId]="filtroLigado() ? FILTRO_ID : null"
               (nomeAlterado)="alterar(f.id, 'nome', $event)"
               (textoAlterado)="alterar(f.id, 'texto', $event)"
               (exemploEscolhido)="carregarExemplo(f.id, $event)"
@@ -85,6 +90,8 @@ export class AppComponent implements AfterViewInit {
     { id: proximoId++, nome: 'Esfoliante orgânico', texto: EXEMPLOS[0]![1] },
   ]);
   protected readonly realcarRepr = signal(false);
+  protected readonly FILTRO_ID = 'lowtox-morganlkeen';
+  protected readonly filtroLigado = signal(false);
   protected readonly tema = signal<'auto' | 'claro' | 'escuro'>('auto');
   protected readonly info = signal<Saude | null>(null);
 
@@ -104,6 +111,13 @@ export class AppComponent implements AfterViewInit {
   }
 
   protected alternarRepr(): void { this.realcarRepr.update((v) => !v); }
+
+  /** Ligar o filtro muda o pedido à API, por isso todas as colunas recorrem. */
+  protected alternarFiltro(): void {
+    this.filtroLigado.update((v) => !v);
+    const fs = this.fichas();
+    this.colunas.forEach((c, i) => { const f = fs[i]; if (f?.texto) c.correr(f.texto); });
+  }
 
   protected alternarTema(): void {
     this.tema.update((t) => (t === 'auto' ? 'claro' : t === 'claro' ? 'escuro' : 'auto'));

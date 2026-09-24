@@ -313,3 +313,27 @@ sistema dela — não se faz por iniciativa própria. O Angular 20 declara
 
 Os tipos continuam a vir de `packages/core`. Não há cópia do modelo no
 frontend: a mesma definição serve a API, a suite de testes e o ecrã.
+
+---
+
+## D15 — O filtro no ecrã, em camada visivelmente distinta
+
+O filtro existia em `packages/core` com testes desde D13, mas nunca chegou ao
+ecrã — estava escrito e não estava ligado. Agora está, e o desenho é tão
+importante como a funcionalidade.
+
+**Na API:** o filtro viaja num campo de topo (`filtro`), nunca dentro de
+`resumo`. Misturá-los na mesma estrutura convidaria qualquer interface — esta
+ou outra — a apresentá-los com o mesmo peso.
+
+**No ecrã:** bloco próprio, borda tracejada em vez de contínua, cor própria,
+com o nome do filtro, o autor, e o aviso da natureza sempre visível. As
+contagens regulamentares acima não mudam quando o filtro liga. Cada entrada
+apanhada leva uma marca tracejada — "Fora do teu filtro" ou "Condicional no
+teu filtro" — para se ver em contexto, porque a posição na lista carrega
+informação.
+
+**Junção por nome e não por posição.** O filtro e o segmentador de rótulos
+partem a lista com regras diferentes: o segmentador respeita parênteses
+(`AQUA (WATER)` é um item), o filtro não. As posições podem divergir, e o
+nome é a única chave estável entre os dois.

@@ -3,6 +3,7 @@ import Fastify from 'fastify';
 import cors from '@fastify/cors';
 import { Matcher } from '../../../packages/core/src/match';
 import { analisar } from '../../../packages/core/src/analisar';
+import { aplicarFiltro, descreverFiltro, FILTRO_LOWTOX } from '../../../packages/core/src/filtros';
 import type { CoreBundle } from '../../../packages/core/src/types';
 
 const CAMINHO_NUCLEO = process.env.LUPA_NUCLEO
@@ -52,7 +53,9 @@ app.get('/api/saude', async () => ({
   fontes: 'Anexos II a VI do Reg. (CE) 1223/2009 via CosIng · CC BY 4.0 · Comissão Europeia',
 }));
 
-app.post<{ Body: { texto?: string; modo?: 'cos' | 'food' } }>('/api/analisar', async (req, reply) => {
+app.get('/api/filtros', async () => ({ filtros: [descreverFiltro(FILTRO_LOWTOX)] }));
+
+app.post<{ Body: { texto?: string; modo?: 'cos' | 'food'; filtro?: string | null } }>('/api/analisar', async (req, reply) => {
   const texto = req.body?.texto;
   if (typeof texto !== 'string' || texto.trim() === '') {
     return reply.code(400).send({ erro: 'Falta o campo "texto" com a lista de ingredientes.' });
@@ -60,7 +63,14 @@ app.post<{ Body: { texto?: string; modo?: 'cos' | 'food' } }>('/api/analisar', a
   if (texto.length > 20_000) {
     return reply.code(413).send({ erro: 'Lista demasiado longa. O limite é 20 000 caracteres.' });
   }
-  return analisar(nucleo, matcher, texto, req.body?.modo === 'food' ? 'food' : 'cos');
+  const analise = analisar(nucleo, matcher, texto, req.body?.modo === 'food' ? 'food' : 'cos');
+
+  /* O filtro viaja num campo DE TOPO e separado, nunca dentro de `resumo`.
+   * Os anexos são lei; um filtro é preferência. Misturá-los na mesma
+   * estrutura convidaria a interface a apresentá-los com o mesmo peso, que é
+   * exatamente o erro que este produto existe para não cometer. */
+  const filtro = req.body?.filtro === FILTRO_LOWTOX.id ? aplicarFiltro(texto, FILTRO_LOWTOX) : undefined;
+  return { ...analise, filtro };
 });
 
 app.get<{ Params: { id: string } }>('/api/substancia/:id', async (req, reply) => {

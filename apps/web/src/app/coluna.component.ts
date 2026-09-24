@@ -1,7 +1,6 @@
 import { ChangeDetectionStrategy, Component, computed, inject, input, output, signal } from '@angular/core';
 import { EntradaComponent } from './entrada.component';
-import { LupaService } from './lupa.service';
-import type { Analise } from './modelos';
+import { LupaService, type AnaliseComFiltro } from './lupa.service';
 
 export interface Ficha { id: number; nome: string; texto: string }
 
@@ -55,9 +54,49 @@ export interface Ficha { id: number; nome: string; texto: string }
           <div class="aberto"><b>{{ a.resumo.por_identificar }}</b><span>por identificar</span></div>
         </div>
 
+        @if (a.filtro; as f) {
+          <section class="filtro-bloco" [class.chumba]="!f.passa">
+            <div class="filtro-cabeca">
+              <span class="sobrancelha">Filtro de preferência — não é um facto regulamentar</span>
+              <span class="filtro-nome">{{ f.filtro }} <span class="filtro-autor">· {{ f.autor }}</span></span>
+            </div>
+
+            <p class="filtro-veredicto">
+              @if (f.passa && !f.condicionais.length) {
+                Nada nesta lista é excluído pelo teu filtro.
+              } @else if (f.passa) {
+                Nada excluído. {{ f.condicionais.length }}
+                {{ f.condicionais.length === 1 ? 'entrada é condicional' : 'entradas são condicionais' }}.
+              } @else {
+                {{ f.excluidos.length }}
+                {{ f.excluidos.length === 1 ? 'entrada excluída' : 'entradas excluídas' }} pelo teu filtro.
+              }
+            </p>
+
+            @if (f.excluidos.length) {
+              <ul class="filtro-lista">
+                @for (e of f.excluidos; track e.ingrediente) {
+                  <li><b>{{ e.ingrediente }}</b><span class="regra">{{ e.regra }}</span></li>
+                }
+              </ul>
+            }
+
+            @if (f.condicionais.length) {
+              <p class="filtro-sub">Condicionais — a lista aceita-as se a condição estiver cumprida:</p>
+              <ul class="filtro-lista cond">
+                @for (c of f.condicionais; track c.ingrediente) {
+                  <li><b>{{ c.ingrediente }}</b><span class="regra">{{ c.condicao }}</span></li>
+                }
+              </ul>
+            }
+
+            <p class="filtro-aviso">{{ f.aviso }} Não entra nas contagens acima, que são só o que dizem os anexos.</p>
+          </section>
+        }
+
         <div class="entradas">
           @for (e of a.entradas; track e.pos) {
-            <lupa-entrada [e]="e" [realcarRepr]="realcarRepr()" />
+            <lupa-entrada [e]="e" [realcarRepr]="realcarRepr()" [filtroRegra]="regraDe(e.raw)" />
           }
         </div>
 
@@ -114,15 +153,34 @@ export class ColunaComponent {
   readonly unica = input(true);
   readonly exemplos = input<Array<[string, string]>>([]);
   readonly realcarRepr = input(false);
+  /** id do filtro a aplicar, ou null. Muda o pedido, por isso re-corre. */
+  readonly filtroId = input<string | null>(null);
 
   readonly nomeAlterado = output<string>();
   readonly textoAlterado = output<string>();
   readonly exemploEscolhido = output<[string, string]>();
   readonly remover = output<void>();
 
-  protected readonly analise = signal<Analise | null>(null);
+  protected readonly analise = signal<AnaliseComFiltro | null>(null);
   protected readonly erro = signal<string | null>(null);
   protected readonly ocupado = signal(false);
+
+  /** Mapa nome→regra para marcar cada entrada. A junção é por NOME e não por
+   *  posição: o filtro e o segmentador de rótulos partem a lista com regras
+   *  diferentes (o segmentador respeita parênteses, o filtro não), e as
+   *  posições podem divergir. O nome é a chave estável entre os dois. */
+  protected readonly porNome = computed(() => {
+    const f = this.analise()?.filtro;
+    const m = new Map<string, { regra: string; condicional: boolean }>();
+    if (!f) return m;
+    for (const e of f.excluidos) m.set(e.ingrediente.trim().toUpperCase(), { regra: e.regra, condicional: false });
+    for (const c of f.condicionais) m.set(c.ingrediente.trim().toUpperCase(), { regra: c.regra, condicional: true });
+    return m;
+  });
+
+  protected regraDe(raw: string) {
+    return this.porNome().get(raw.trim().toUpperCase()) ?? null;
+  }
 
   private temporizador: ReturnType<typeof setTimeout> | undefined;
   /** Contador de pedidos: uma resposta lenta de um texto antigo não pode
@@ -150,7 +208,7 @@ export class ColunaComponent {
     const minha = ++this.geracao;
     this.temporizador = setTimeout(async () => {
       try {
-        const a = await this.lupa.analisar(texto);
+        const a = await this.lupa.analisar(texto, 'cos', this.filtroId());
         if (minha !== this.geracao) return;
         this.analise.set(a);
         this.erro.set(null);

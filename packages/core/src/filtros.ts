@@ -117,16 +117,34 @@ export const FILTRO_LOWTOX: Filtro = {
   ],
 };
 
+export interface AchadoFiltro {
+  /** posição no rótulo, 1-based — a mesma numeração das entradas */
+  pos: number;
+  ingrediente: string;
+  regra: string;
+  condicao?: string;
+}
+
 export interface ResultadoFiltro {
+  filtro_id: string;
   filtro: string;
-  excluidos: Array<{ ingrediente: string; regra: string }>;
-  condicionais: Array<{ ingrediente: string; regra: string; condicao: string }>;
+  autor: string;
+  natureza: Filtro['natureza'];
+  aviso: string;
+  excluidos: AchadoFiltro[];
+  condicionais: AchadoFiltro[];
   passa: boolean;
 }
 
+/** Metadados sem as regras, para a interface se apresentar sem carregar tudo. */
+export function descreverFiltro(f: Filtro = FILTRO_LOWTOX) {
+  return { id: f.id, nome: f.nome, autor: f.autor, natureza: f.natureza, atualizado: f.atualizado, aviso: f.aviso, regras: f.regras.length };
+}
+
 export function aplicarFiltro(inci: string, filtro: Filtro = FILTRO_LOWTOX): ResultadoFiltro {
-  const excluidos: ResultadoFiltro['excluidos'] = [];
-  const condicionais: ResultadoFiltro['condicionais'] = [];
+  const excluidos: AchadoFiltro[] = [];
+  const condicionais: AchadoFiltro[] = [];
+
   // Separadores encontrados em rótulos reais: vírgula, ponto e vírgula,
   // travessão rodeado de espaços (Uriage) e ponto médio (Rilastil).
   const entradas = inci
@@ -134,18 +152,22 @@ export function aplicarFiltro(inci: string, filtro: Filtro = FILTRO_LOWTOX): Res
     .map((s) => s.trim().replace(/^\(|\)$/g, '').trim())
     .filter(Boolean);
 
-  for (const entrada of entradas) {
+  entradas.forEach((entrada, i) => {
     for (const regra of filtro.regras) {
       if (!regra.padroes.some((re) => re.test(entrada))) continue;
+      const achado: AchadoFiltro = { pos: i + 1, ingrediente: entrada, regra: regra.rotulo };
       if (regra.veredicto === 'excluido') {
-        if (!excluidos.some((e) => e.ingrediente === entrada)) excluidos.push({ ingrediente: entrada, regra: regra.rotulo });
-      } else {
-        if (!condicionais.some((e) => e.ingrediente === entrada)) {
-          condicionais.push({ ingrediente: entrada, regra: regra.rotulo, condicao: regra.condicao ?? '' });
-        }
+        if (!excluidos.some((e) => e.ingrediente === entrada)) excluidos.push(achado);
+      } else if (!condicionais.some((e) => e.ingrediente === entrada)) {
+        condicionais.push({ ...achado, condicao: regra.condicao ?? '' });
       }
       break;
     }
-  }
-  return { filtro: filtro.nome, excluidos, condicionais, passa: excluidos.length === 0 };
+  });
+
+  return {
+    filtro_id: filtro.id, filtro: filtro.nome, autor: filtro.autor,
+    natureza: filtro.natureza, aviso: filtro.aviso,
+    excluidos, condicionais, passa: excluidos.length === 0,
+  };
 }

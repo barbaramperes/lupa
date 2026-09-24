@@ -13,5 +13,6 @@
     "paths": { "@lupa/core": ["./packages/core/src/index.ts"] },
     "baseUrl": "."
   },
-  "include": ["packages/**/*.ts", "apps/**/*.ts", "tests/**/*.ts"]
+  "include": ["packages/**/*.ts", "apps/api/**/*.ts", "tests/**/*.ts"],
+  "exclude": ["node_modules", "**/dist", "apps/web"]
 }
