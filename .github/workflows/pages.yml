@@ -1,0 +1,50 @@
+# Publica o build estático no GitHub Pages.
+#
+# Disparo MANUAL, de propósito: em conta gratuita o Pages exige repositório
+# público, e um workflow que falhasse a cada push num repositório privado seria
+# só ruído. Quando o repositório for público (ou a conta tiver Pages em
+# privados), corre-se daqui: Actions → "Publicar no GitHub Pages" → Run.
+name: Publicar no GitHub Pages
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with: { version: 9 }
+      - uses: actions/setup-node@v4
+        with: { node-version: 22, cache: pnpm }
+      - run: pnpm install --frozen-lockfile
+
+      # O núcleo não está versionado: constrói-se aqui, dos anexos do CosIng.
+      # Sem a ponte do PubChem (924 MB) — o build de Pages usa só o CosIng.
+      - run: pnpm ingest
+      - run: pnpm test
+
+      - run: cp data/build/core.json apps/web/public/nucleo/core.json
+      - run: cd apps/web && npx ng build --configuration static
+      - uses: actions/upload-pages-artifact@v3
+        with: { path: apps/web/dist/lupa-web/browser }
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4
