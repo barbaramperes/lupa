@@ -13,22 +13,40 @@
             "browser": "src/main.ts",
             "index": "src/index.html",
             "tsConfig": "tsconfig.app.json",
-            "styles": ["src/estilos.css"],
+            "styles": [
+              "src/estilos.css"
+            ],
             "polyfills": []
           },
           "configurations": {
-            "production": { "optimization": true, "outputHashing": "all" },
-            "development": { "optimization": false, "sourceMap": true }
+            "production": {
+              "optimization": true,
+              "outputHashing": "all"
+            },
+            "development": {
+              "optimization": false,
+              "sourceMap": true
+            }
           },
           "defaultConfiguration": "production"
         },
         "serve": {
           "builder": "@angular/build:dev-server",
-          "options": { "port": 5178, "proxyConfig": "proxy.conf.json" },
-          "configurations": { "development": { "buildTarget": "lupa-web:build:development" } },
+          "options": {
+            "port": 5178,
+            "proxyConfig": "proxy.conf.json"
+          },
+          "configurations": {
+            "development": {
+              "buildTarget": "lupa-web:build:development"
+            }
+          },
           "defaultConfiguration": "development"
         }
       }
     }
+  },
+  "cli": {
+    "analytics": false
   }
 }
