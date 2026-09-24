@@ -53,9 +53,24 @@ export const FILTRO_LOWTOX: Filtro = {
   regras: [
     { rotulo: 'Alumínio', padroes: [/\baluminum\b/i, /\baluminium\b/i], veredicto: 'excluido' },
     { rotulo: 'Acrilatos', padroes: [/acrylate/i, /acrylic acid/i, /carbomer/i, /polyacrylamide/i], veredicto: 'excluido' },
-    { rotulo: 'Avobenzone', padroes: [/avobenzone/i, /butyl methoxydibenzoylmethane/i], veredicto: 'excluido' },
+    /* FILTROS UV: só minerais.
+     *
+     * A lista original nomeia seis filtros químicos. Ela confirmou que o
+     * critério é "só filtros minerais", e nesse caso nomear seis de vinte e
+     * oito deixaria passar os outros vinte e dois — incluindo os Tinosorb,
+     * a triazona e o salicilato de etilhexilo, que são dos mais usados.
+     *
+     * Esta regra é gerada do Anexo VI do Reg. (CE) 1223/2009: exclui todos
+     * os filtros UV autorizados na UE EXCETO óxido de zinco e dióxido de
+     * titânio. Assim não apodrece quando a UE autorizar um filtro novo. */
+    { rotulo: 'Filtro UV químico (só minerais)', veredicto: 'excluido', padroes: [
+      /benzophenone/i, /benzylidene camphor/i, /dibenzoylmethane/i, /methoxycinnamate/i,
+      /\bsalicylate\b/i, /homosalate/i, /octocrylene/i, /octinoxate/i, /oxybenzone/i, /avobenzone/i,
+      /triazine/i, /triazone/i, /\bpaba\b/i, /benzimidazole/i, /benzotriazolyl/i,
+      /drometrizole/i, /polysilicone-15/i, /camphor sulfonic acid/i, /piperazine\b/i,
+      /diethylamino hydroxybenzoyl/i, /cyanoacetate/i, /camphor benzalkonium/i,
+    ] },
     { rotulo: 'Cloreto de benzalcónio', padroes: [/benzalkonium/i], veredicto: 'excluido' },
-    { rotulo: 'Benzofenona', padroes: [/^benzophenone/i, /benzophenone-\d/i], veredicto: 'excluido' },
     { rotulo: 'Benzeno', padroes: [/^benzene$/i], veredicto: 'excluido' },
     { rotulo: 'Benzoato de benzilo', padroes: [/benzyl benzoate/i], veredicto: 'excluido' },
     { rotulo: 'Salicilato de benzilo', padroes: [/benzyl salicylate/i], veredicto: 'excluido' },
@@ -69,9 +84,7 @@ export const FILTRO_LOWTOX: Filtro = {
     { rotulo: 'DEA / etanolaminas', padroes: [/diethanolamine/i, /\bdea\b/i, /^ethanolamine/i, /triethanolamine/i, /\btea-/i], veredicto: 'excluido' },
     { rotulo: 'EDTA', padroes: [/\bedta\b/i], veredicto: 'excluido' },
     { rotulo: 'Etilenoglicol', padroes: [/ethylene glycol/i], veredicto: 'excluido' },
-    { rotulo: 'Octinoxato', padroes: [/ethylhexyl methoxycinnamate/i, /octinoxate/i], veredicto: 'excluido' },
     { rotulo: 'Formaldeído e libertadores', padroes: [/formaldehyde/i, /diazolidinyl urea/i, /imidazolidinyl urea/i, /quaternium-15/i, /dmdm hydantoin/i, /methenamine/i, /bronopol/i], veredicto: 'excluido' },
-    { rotulo: 'Homosalato', padroes: [/homosalate/i], veredicto: 'excluido' },
     { rotulo: 'Hidroquinona', padroes: [/hydroquinone/i], veredicto: 'excluido' },
     { rotulo: 'Isoceteth', padroes: [/isoceteth/i], veredicto: 'excluido' },
     { rotulo: 'Corantes lake', padroes: [/\blake\b/i, /\bci \d{5}.*lake/i], veredicto: 'condicional', condicao: 'aceitável se a marca fizer teste de metais pesados' },
@@ -79,8 +92,6 @@ export const FILTRO_LOWTOX: Filtro = {
     { rotulo: 'Lauramidopropil betaína', padroes: [/lauramidopropyl betaine/i], veredicto: 'excluido' },
     { rotulo: 'Isotiazolinonas', padroes: [/methylisothiazolinone/i, /methylchloroisothiazolinone/i, /isothiazolinone/i], veredicto: 'excluido' },
     { rotulo: 'Óleo mineral, parafina, vaselina', padroes: [/mineral oil/i, /paraffinum/i, /\bparaffin\b/i, /petrolatum/i, /petroleum/i, /cera microcristallina/i, /microcrystalline wax/i, /ozokerite/i], veredicto: 'excluido' },
-    { rotulo: 'Octocrileno', padroes: [/octocrylene/i], veredicto: 'excluido' },
-    { rotulo: 'Oxibenzona', padroes: [/oxybenzone/i, /benzophenone-3/i], veredicto: 'excluido' },
     { rotulo: 'Parabenos', padroes: [/paraben/i], veredicto: 'excluido' },
     { rotulo: 'Ftalatos', padroes: [/phthalate/i], veredicto: 'excluido' },
     { rotulo: 'PEG e etoxilados', padroes: [/\bpeg-\d/i, /polyethylene glycol/i, /\bpolysorbate/i, /steareth/i, /trideceth/i, /\boleth-/i, /\bpareth-/i], veredicto: 'excluido' },
