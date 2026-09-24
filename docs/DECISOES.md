@@ -257,3 +257,29 @@ produto inteiro invisível à análise, em silêncio.
 
 Só se separa em travessão rodeado de espaços: o hífen dentro de um nome
 (PEG-100, C10-30, Coco-Caprylate) nunca os tem, e parti-lo destruiria o nome.
+
+---
+
+## D13 — Filtros de exclusão são uma camada à parte dos anexos
+
+Passámos seis rondas a não acertar no que "clean" queria dizer, porque eu
+estava a inventar a definição em vez de a pedir. Resolveu-se quando ela mandou
+a lista que usa: "Ingredients to Avoid — Beauty & Personal Care",
+@morganlkeen, atualizada 4 out 2025 (cópia em `data/filtros/`).
+
+Está codificada em `packages/core/src/filtros.ts` como 47 regras, transcritas
+verbatim do PDF, incluindo as quatro condicionais que o documento marca com
+visto: fenoxietanol, cocamidopropil betaína, fragrância e dióxido de titânio.
+
+**A separação que importa:** um filtro destes NÃO é um anexo. Os anexos são
+lei; um filtro é uma preferência, e o próprio documento se declara como
+"based on my personal research and preferences". Um ingrediente excluído por
+filtro nunca entra nas contagens regulamentares nem no veredicto factual —
+aparece em secção própria, com o nome do filtro à vista. O modelo tem três
+camadas e não duas: facto regulamentar, leitura editorial (D4), filtro de
+preferência.
+
+Bug encontrado ao aplicá-lo: o segmentador do filtro não conhecia o ponto
+médio "•", que a Rilastil usa como separador. A lista inteira virava uma
+entrada. É o mesmo bug de D12 noutro sítio — valeu a pena procurar os dois
+sítios onde a segmentação existia.
