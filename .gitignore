@@ -8,3 +8,14 @@ data/build/
 *.log
 .DS_Store
 data/build/core.json
+
+# cache de build do Angular — 8 MB que nunca deviam ter entrado
+.angular/
+apps/web/.angular/
+apps/web/dist/
+
+# O PDF da lista de exclusão é obra de terceiro (@morganlkeen) e não é nossa
+# para redistribuir. As REGRAS estão transcritas em packages/core/src/filtros.ts,
+# com atribuição — factos e critérios não são o documento. O ficheiro fica na
+# máquina para consulta, fora do repositório.
+data/filtros/*.pdf
