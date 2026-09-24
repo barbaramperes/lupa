@@ -391,3 +391,32 @@ como na raiz de qualquer outro alojamento, sem reconstruir.
 
 Verificado com a API desligada: veredicto, contagens e filtro corretos, zero
 erros de consola.
+
+---
+
+## D18 — Redesign do frontend: o veredicto é o hero
+
+**Motivo:** ela viu-o a 1440px em modo claro e disse "péssimo". Tinha razão.
+Um formulário encostado à esquerda com um terço do ecrã vazio, letra de
+10–12px em tudo, o veredicto — a coisa mais importante — numa linha de 15px
+num painel cinzento, e oito linhas de "por identificar" antes de aparecer
+alguma coisa que interessasse. A intenção era "ficha de segurança"; o
+resultado era "ferramenta interna de 2008".
+
+**O que mudou, e porquê cada coisa:**
+- **Duas colunas para um produto**: rótulo à esquerda, fixo ao scroll;
+  resultado à direita. Pergunta e resposta lado a lado, sem espaço morto.
+  Com dois ou três produtos volta a uma coluna por produto.
+- **O veredicto a 27px em serifa, as contagens a 34px.** É o que se vê
+  primeiro, porque é o que se veio ver.
+- **Reconhecidas primeiro, por identificar numa linha de chips no fim.** A
+  posição fica visível em cada uma — em INCI a ordem é informação — mas
+  deixam de ser oito linhas vazias antes da primeira que interessa.
+- **Escala tipográfica: nada abaixo de 12px, corpo a 16.**
+- **O índice editorial ganha um anel.** Continua rotulado como leitura minha
+  e não facto; passa a ser um momento visual em vez de um número perdido.
+
+**O que não mudou:** a separação entre facto regulamentar, leitura editorial
+e filtro de preferência (D4, D13, D15). O redesign tornou-a mais visível, não
+menos — o filtro continua em bloco tracejado, o editorial fora do painel dos
+factos.
