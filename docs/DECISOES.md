@@ -283,3 +283,33 @@ Bug encontrado ao aplicá-lo: o segmentador do filtro não conhecia o ponto
 médio "•", que a Rilastil usa como separador. A lista inteira virava uma
 entrada. É o mesmo bug de D12 noutro sítio — valeu a pena procurar os dois
 sítios onde a segmentação existia.
+
+---
+
+## D14 — Frontend em Angular
+
+**Decidido por:** Bárbara, 24 set 2026. A razão é de carreira, não técnica:
+precisa de projetos que comprovem Angular, e o frontend era React.
+
+Angular **20.3.32**, e não o 22, por uma restrição concreta: o Angular 22 exige
+Node ≥22.22.3 e a máquina tem 22.12.0, instalado pelo instalador oficial em
+`/usr/local/bin`. Atualizar o Node exige palavra-passe e é uma alteração ao
+sistema dela — não se faz por iniciativa própria. O Angular 20 declara
+`^22.12.0` nos engines e tem tudo o que interessa demonstrar.
+
+**O que a migração usa, e é de propósito:**
+- componentes *standalone*, sem NgModules
+- estado em **signals** (`signal`, `computed`, `input()`, `output()`)
+- **zoneless** (`provideZonelessChangeDetection`): sem zone.js, sem
+  monkey-patch das APIs do browser, deteção de alterações como consequência do
+  grafo de signals
+- control flow novo (`@if`, `@for`, `@empty`) em vez das diretivas estruturais
+- `ChangeDetectionStrategy.OnPush` em todos os componentes
+- `strictTemplates` ligado — apanhou logo um erro real: `source.annex` e
+  `payload.reference_number` são opcionais e estavam a ser usados como chave
+  de `track`
+
+**Bundle de produção: 183,8 kB em bruto, 53,7 kB transferidos.**
+
+Os tipos continuam a vir de `packages/core`. Não há cópia do modelo no
+frontend: a mesma definição serve a API, a suite de testes e o ecrã.
