@@ -6,7 +6,9 @@
   "scripts": {
     "ingest": "tsx packages/ingest/src/cli.ts",
     "test": "vitest run",
-    "test:watch": "vitest"
+    "test:watch": "vitest",
+    "dev": "bash scripts/dev.sh",
+    "portas": "lsof -i tcp:8787 -i tcp:5178 || echo \"nada a correr\""
   },
   "devDependencies": {
     "@types/node": "^22.9.0",
