@@ -32,6 +32,14 @@ export class LupaService {
   } | null = null;
   private aPreparar: Promise<void> | null = null;
 
+  constructor() {
+    // Em modo estático o núcleo (14 MB) começa a descarregar no arranque, não
+    // depois do debounce da primeira análise: são ~300 ms a menos numa ligação
+    // lenta, e o sinal de carregamento aparece logo em vez de a app mostrar
+    // "cola um rótulo" durante um instante mudo.
+    if (environment.estatico) void this.prepararMotor().catch(() => { this.aCarregarNucleo.set(false); });
+  }
+
   async analisar(texto: string, modo: 'cos' | 'food' = 'cos', filtro: string | null = null): Promise<AnaliseComFiltro> {
     if (!environment.estatico) {
       return firstValueFrom(this.http.post<AnaliseComFiltro>('/api/analisar', { texto, modo, filtro }));
