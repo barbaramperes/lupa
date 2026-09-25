@@ -9,6 +9,10 @@
 # ar de sucesso. O script apaga o branch local antes, e no fim verifica que o
 # bundle servido é o que acabou de construir — não confia no HTTP 200.
 set -euo pipefail
+# O gh abre um paginador (less) quando o stdout é um terminal, e o script
+# ficava parado num "(END)" à espera de um q que ninguém sabia que tinha de
+# dar. Nunca paginar; nunca perguntar.
+export GH_PAGER=cat GH_PROMPT_DISABLED=1 PAGER=cat
 RAIZ="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 REPO="barbaramperes/lupa"
 URL="https://barbaramperes.github.io/lupa/"
@@ -61,5 +65,9 @@ for i in $(seq 1 9); do
   fi
   [ "$ST" = "errored" ] && { echo "✗ o build do Pages falhou"; gh api "repos/$REPO/pages/builds/latest" --jq '.error.message'; exit 1; }
 done
+if git ls-tree -r origin/gh-pages --name-only | grep -qx "$SERVIDO"; then
+  echo "· o Pages serve $SERVIDO, que é OUTRA publicação já no branch — alguém publicou depois desta. Nada a fazer."
+  exit 0
+fi
 echo "✗ tempo esgotado: o Pages construiu mas ainda serve $SERVIDO em vez de $NOVO"
 exit 1
