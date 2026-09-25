@@ -23,24 +23,29 @@ DIST="$RAIZ/apps/web/dist/lupa-web/browser"
 NOVO=$(grep -oE 'main-[A-Z0-9]+\.js' "$DIST/index.html" | head -1)
 echo "  bundle construído: $NOVO"
 
-echo "→ branch gh-pages"
-git branch -D gh-pages -q 2>/dev/null || true   # o remoto é a verdade; o local só atrapalha
+echo "→ branch gh-pages (por cima do anterior: os assets antigos ficam)"
+# NÃO se faz orphan. O Pages envia cache-control: max-age=600 no index.html,
+# e um index em cache aponta para bundles com hash. Se a publicação apagar os
+# bundles anteriores, quem tiver o index antigo em cache vê a página partida —
+# foi exatamente o que aconteceu. Comita-se por cima do remoto e os ficheiros
+# antigos sobrevivem; o index novo aponta para os novos. Custo: uns 200 kB por
+# publicação, que o core.json (mesmo nome, substituído) não agrava.
+git fetch -q origin gh-pages
 WT="$(mktemp -d)"
-git worktree add -q --detach "$WT"
+git worktree add -q --detach "$WT" origin/gh-pages
 (
   cd "$WT"
-  git checkout -q --orphan gh-pages
-  git rm -rfq . 2>/dev/null || true
   cp -R "$DIST"/. .
   touch .nojekyll
   git add -A
-  git -c user.email=barbaraperes2003@gmail.com -c user.name="Barbara Peres" \
-      commit -qm "Build estático ($(git -C "$RAIZ" rev-parse --short main))"
-  git push -q -f origin gh-pages
+  if git diff --cached --quiet; then echo "  nada mudou no build"; else
+    git -c user.email=barbaraperes2003@gmail.com -c user.name="Barbara Peres" \
+        commit -qm "Build estático ($(git -C "$RAIZ" rev-parse --short main))"
+  fi
+  git push -q origin HEAD:gh-pages
 )
 git worktree remove -f "$WT"
-git branch -D gh-pages -q 2>/dev/null || true
-echo "  enviado: $(git rev-parse --short origin/gh-pages)"
+echo "  enviado: $(git rev-parse --short origin/gh-pages) · assets no branch: $(git ls-tree -r origin/gh-pages --name-only | grep -cE '^(main|styles|chunk)-')"
 
 echo "→ build do Pages"
 gh api -X POST "repos/$REPO/pages/builds" --jq '"  pedido: \(.status)"'

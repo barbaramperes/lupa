@@ -28,7 +28,9 @@ export interface Ficha { id: number; nome: string; texto: string }
             <button class="fantasma" (click)="exemploEscolhido.emit(ex)">{{ ex[0] }}</button>
           }
           <span class="conta">
-            @if (ocupado()) { a analisar… } @else if (analise(); as a) { {{ a.resumo.total }} entradas }
+            @if (lupa.aCarregarNucleo()) { a carregar a base… }
+            @else if (ocupado()) { a analisar… }
+            @else if (analise(); as a) { {{ a.resumo.total }} entradas }
           </span>
         </div>
 
@@ -114,6 +116,13 @@ export interface Ficha { id: number; nome: string; texto: string }
               </p>
             </div>
           }
+        } @else if (lupa.aCarregarNucleo()) {
+          <!-- 14 MB de núcleo numa ligação lenta parecem uma app congelada.
+               Diz-se o que se está a fazer, em vez de deixar o ecrã mudo. -->
+          <p class="veredicto-factual incerto" style="padding-bottom:6px">A carregar a base de substâncias…</p>
+          <p class="aviso-cobertura" style="color:var(--tinta3)">
+            São 14 MB, uma única vez — depois fica em cache. Numa ligação lenta pode levar uns segundos.
+          </p>
         } @else {
           <p class="veredicto-factual incerto" style="padding-bottom:24px">Cola um rótulo para começar.</p>
         }
@@ -152,7 +161,7 @@ export interface Ficha { id: number; nome: string; texto: string }
   `,
 })
 export class ColunaComponent {
-  private readonly lupa = inject(LupaService);
+  protected readonly lupa = inject(LupaService);
 
   readonly ficha = input.required<Ficha>();
   readonly unica = input(true);
