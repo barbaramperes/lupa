@@ -37,6 +37,8 @@ export interface Entrada {
   inicia_blend: boolean;
   /** cai dentro da janela da matéria-prima composta detetada */
   no_blend: boolean;
+  /** percentagem declarada no rótulo, quando existe — vem do segmentador */
+  percentagem?: number;
   substancias: Substance[];
   afirmacoes: Claim[];
   cmr: Cmr[];

@@ -420,3 +420,40 @@ resultado era "ferramenta interna de 2008".
 e filtro de preferência (D4, D13, D15). O redesign tornou-a mais visível, não
 menos — o filtro continua em bloco tracejado, o editorial fora do painel dos
 factos.
+
+---
+
+## D19 — O que a tua lista apanha não fica escondido
+
+**Descoberto com um tónico coreano colado por ela**, 25 set 2026: Houttuynia
+Cordata a 70%, 28 ingredientes, **nenhum regulado pelos anexos**. A app disse
+"Nenhuma entrada consta dos anexos II a VI", 100/100, e meteu os 28 numa fila
+de chips cinzentos. Ela leu isso como "não respondeu" — e tinha razão.
+
+Com o filtro ligado, o produto **chumba na lista dela**: Carbomer (#20) e
+Disodium EDTA (#24). Mas como nenhum dos dois é regulado, o redesign de D18
+tinha-os posto na fila dos "por identificar" — respondia à pergunta da lei e
+escondia a dela.
+
+**Regra nova:** uma entrada tem linha própria se a lei diz alguma coisa dela
+**ou** se o filtro a apanha. A contagem regulamentar não muda (continuam a
+ser 28 por identificar, porque é verdade), e a fila de chips diz porque tem
+menos.
+
+**E quando a lei não diz nada e o filtro está desligado**, um aviso aponta
+para ele — "a lei não restringe nada nesta lista, o que é comum; as tuas
+perguntas são outras". O filtro fica lembrado entre visitas.
+
+**Três bugs que o mesmo rótulo expôs:**
+- `1,2-Hexanediol` virava `2-Hexanediol`: a vírgula entre dígitos é um
+  locante químico, não um separador. O "1" sozinho era descartado por curto.
+- `(70%)` deixava `()` no nome. A percentagem passa a sair inteira — e a ser
+  **guardada**, porque é a única concentração real que um rótulo dá.
+- O nome do exemplo ("Esfoliante orgânico") ficava agarrado a um produto
+  colado por cima.
+
+**E a causa de fundo de metade dos bugs de separação:** havia dois
+segmentadores. O filtro usava o seu, com regras diferentes, e cada correção —
+travessões (D12), pontos médios, agora locantes — tinha de ser feita duas
+vezes. O filtro passou a usar o mesmo `segment()` da análise; as posições
+coincidem e a interface junta as camadas por posição, não por nome.

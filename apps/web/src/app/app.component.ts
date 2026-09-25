@@ -11,6 +11,13 @@ const EXEMPLOS: Array<[string, string]> = [
 
 let proximoId = 1;
 
+function lerPreferencia(chave: string): boolean {
+  try { return globalThis.localStorage?.getItem(chave) === '1'; } catch { return false; }
+}
+function gravarPreferencia(chave: string, valor: boolean): void {
+  try { globalThis.localStorage?.setItem(chave, valor ? '1' : '0'); } catch { /* sem armazenamento: não se lembra */ }
+}
+
 @Component({
   selector: 'lupa-app',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -91,7 +98,10 @@ export class AppComponent implements AfterViewInit {
   ]);
   protected readonly realcarRepr = signal(false);
   protected readonly FILTRO_ID = 'lowtox-morganlkeen';
-  protected readonly filtroLigado = signal(false);
+  /** Lembrado entre visitas: é a TUA lista, e ligá-la a cada visita era
+   *  descobrir outra vez que ela existe. localStorage pode falhar (modo
+   *  privado, armazenamento bloqueado) — nesse caso começa desligado. */
+  protected readonly filtroLigado = signal(lerPreferencia('lupa.filtro'));
   protected readonly tema = signal<'auto' | 'claro' | 'escuro'>('auto');
   protected readonly info = signal<Saude | null>(null);
 
@@ -115,6 +125,7 @@ export class AppComponent implements AfterViewInit {
   /** Ligar o filtro muda o pedido à API, por isso todas as colunas recorrem. */
   protected alternarFiltro(): void {
     this.filtroLigado.update((v) => !v);
+    gravarPreferencia('lupa.filtro', this.filtroLigado());
     const fs = this.fichas();
     this.colunas.forEach((c, i) => { const f = fs[i]; if (f?.texto) c.correr(f.texto); });
   }
@@ -124,7 +135,19 @@ export class AppComponent implements AfterViewInit {
   }
 
   protected alterar(id: number, campo: 'nome' | 'texto', valor: string): void {
-    this.fichas.update((fs) => fs.map((f) => (f.id === id ? { ...f, [campo]: valor } : f)));
+    this.fichas.update((fs) => fs.map((f) => {
+      if (f.id !== id) return f;
+      const nova = { ...f, [campo]: valor };
+      // Colaste outro produto por cima de um exemplo: o nome do exemplo deixa
+      // de ser verdade. Colar um tónico coreano e vê-lo chamado "Esfoliante
+      // orgânico" foi o que aconteceu. Editar o fim da lista mantém o início,
+      // e aí o nome fica.
+      if (campo === 'texto') {
+        const ex = EXEMPLOS.find(([nome]) => nome === f.nome);
+        if (ex && !valor.startsWith(ex[1].slice(0, 24))) nova.nome = '';
+      }
+      return nova;
+    }));
   }
 
   protected carregarExemplo(id: number, [nome, texto]: [string, string]): void {

@@ -1,4 +1,4 @@
-import { normalize } from './normalize';
+import { segment } from './normalize';
 
 /**
  * FILTROS DE EXCLUSÃO NOMEADOS.
@@ -145,12 +145,12 @@ export function aplicarFiltro(inci: string, filtro: Filtro = FILTRO_LOWTOX): Res
   const excluidos: AchadoFiltro[] = [];
   const condicionais: AchadoFiltro[] = [];
 
-  // Separadores encontrados em rótulos reais: vírgula, ponto e vírgula,
-  // travessão rodeado de espaços (Uriage) e ponto médio (Rilastil).
-  const entradas = inci
-    .split(/[,;\n•·]|\s+[—–]\s+/)
-    .map((s) => s.trim().replace(/^\(|\)$/g, '').trim())
-    .filter(Boolean);
+  // O MESMO segmentador que a análise usa. Tinham sido dois, com regras
+  // diferentes (um respeitava parênteses, o outro não), e cada bug de
+  // separação — travessões, pontos médios, locantes — teve de ser corrigido
+  // duas vezes. Agora as posições coincidem com as da análise, e a interface
+  // junta as duas camadas por posição em vez de por nome.
+  const entradas = segment(inci).map((s) => s.raw);
 
   entradas.forEach((entrada, i) => {
     for (const regra of filtro.regras) {

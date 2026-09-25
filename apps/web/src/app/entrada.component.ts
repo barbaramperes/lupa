@@ -17,6 +17,9 @@ import { ANEXO_NUM, ANEXO_ROTULO, CMR_ROTULO, limpar, type Entrada } from './mod
       <div class="l1">
         <span class="pos">{{ e().pos }}</span>
         <span class="nome">{{ e().raw }}</span>
+        @if (e().percentagem !== undefined) {
+          <span class="pct" title="Percentagem declarada no próprio rótulo — a única concentração real que um rótulo dá">{{ e().percentagem }}%</span>
+        }
         @if (e().estado === 'por_identificar') {
           <span class="marcas">
             <span class="marca-p aberto">Por identificar</span>

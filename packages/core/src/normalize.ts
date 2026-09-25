@@ -37,6 +37,10 @@ export interface Segment {
   /** a conjunção "and" a meio de uma lista INCI declara uma matéria-prima
    *  composta: um blend vendido como ingrediente único */
   inicia_blend: boolean;
+  /** Percentagem declarada no próprio rótulo — "Houttuynia Cordata Extract
+   *  (70%)". Rara e valiosa: é a única concentração real que um rótulo dá, e
+   *  a posição na lista só a sugere. */
+  percentagem?: number;
 }
 
 const MARCADORES_CONDICIONAIS = /^(\+\s*\/\s*-|\+-|±|MAY CONTAIN|PODE CONTER|PEUT CONTENIR)\s*/i;
@@ -64,12 +68,24 @@ export function segment(label: string): Segment[] {
 
     // marcadores de origem orgânica/natural não fazem parte do nome
     texto = texto.replace(/[*†°]+$/g, '').trim();
-    // percentagens declaradas não fazem parte do nome
-    texto = texto.replace(/\d+([.,]\d+)?\s*%/g, '').trim();
+    // Percentagens declaradas não fazem parte do nome, mas são informação:
+    // guardam-se antes de sair. Entre parênteses sai o bloco inteiro — tirar
+    // só o número deixava "Houttuynia Cordata Extract ()" no ecrã.
+    let percentagem: number | undefined;
+    const pct = texto.match(/(\d+(?:[.,]\d+)?)\s*%/);
+    if (pct) percentagem = Number(pct[1]!.replace(',', '.'));
+    texto = texto
+      .replace(/\(\s*\d+(?:[.,]\d+)?\s*%\s*\)/g, '')
+      .replace(/\d+(?:[.,]\d+)?\s*%/g, '')
+      .replace(/\s{2,}/g, ' ')
+      .trim();
 
     const norm = normalize(texto);
     if (norm.length < 2) return;
-    out.push({ raw: texto, norm, pos: out.length + 1, condicional, inicia_blend });
+    out.push({
+      raw: texto, norm, pos: out.length + 1, condicional, inicia_blend,
+      ...(percentagem !== undefined ? { percentagem } : {}),
+    });
   };
 
   // Nem toda a gente separa por vírgula. A Uriage publica as listas com
@@ -78,10 +94,16 @@ export function segment(label: string): Segment[] {
   // Só se separa em travessão RODEADO DE ESPAÇOS: o hífen dentro de um nome
   // (PEG-100, C10-30, Coco-Caprylate) nunca os tem, e parti-lo destruiria o nome.
   const normalizado = label.replace(/\s+[—–]\s+/g, ',').replace(/[\n\r;•|\t]+/g, ',');
-  for (const ch of normalizado) {
+  for (let i = 0; i < normalizado.length; i++) {
+    const ch = normalizado[i]!;
     if (ch === '(' || ch === '[') depth++;
     else if (ch === ')' || ch === ']') depth = Math.max(0, depth - 1);
-    if (ch === ',' && depth === 0) flush();
+    // Uma vírgula ENTRE DOIS DÍGITOS é um locante químico, não um separador:
+    // 1,2-Hexanediol, 1,3-Propanediol, 2,4-Dichlorobenzyl Alcohol. Partir aí
+    // transformava "1,2-Hexanediol" em "2-Hexanediol" — o "1" sozinho era
+    // descartado por curto, e o nome ficava errado em silêncio.
+    const locante = ch === ',' && /\d/.test(normalizado[i - 1] ?? '') && /\d/.test(normalizado[i + 1] ?? '');
+    if (ch === ',' && depth === 0 && !locante) flush();
     else buf += ch;
   }
   flush();

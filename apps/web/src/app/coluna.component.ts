@@ -41,6 +41,13 @@ export interface Ficha { id: number; nome: string; texto: string }
         @if (analise(); as a) {
           <p class="veredicto-factual" [class.incerto]="!a.resumo.avaliavel">{{ a.resumo.veredicto }}</p>
 
+          @if (!a.filtro && a.resumo.reconhecidos === 0 && !a.resumo.lista_traduzida) {
+            <p class="empurrao">
+              A lei não restringe nada nesta lista — o que é comum. As tuas perguntas são outras:
+              liga <b>O meu filtro</b> no topo para veres o que a tua lista exclui.
+            </p>
+          }
+
           @if (a.resumo.lista_traduzida) {
             <p class="aviso-cobertura">
               As minhas listas estão em nomenclatura INCI, e esta parece estar traduzida. Não é um resultado limpo —
@@ -96,17 +103,26 @@ export interface Ficha { id: number; nome: string; texto: string }
           }
 
           <div class="entradas">
-            @for (e of reconhecidas(); track e.pos) {
-              <lupa-entrada [e]="e" [realcarRepr]="realcarRepr()" [filtroRegra]="regraDe(e.raw)" />
+            @for (e of destacadas(); track e.pos) {
+              <lupa-entrada [e]="e" [realcarRepr]="realcarRepr()" [filtroRegra]="regraDe(e.pos)" />
             }
           </div>
 
           @if (porIdentificar().length) {
             <div class="nao-identificados">
-              <span class="sobrancelha">{{ porIdentificar().length }} por identificar</span>
+              <!-- A contagem de cima é a da lei (28 por identificar). Se o teu
+                   filtro subiu algumas para linha própria, esta fila tem menos —
+                   e tem de dizer porquê, senão parece que os números não batem. -->
+              <span class="sobrancelha">
+                @if (porIdentificar().length < a.resumo.por_identificar) {
+                  Restantes {{ porIdentificar().length }} — não reguladas pelos anexos nem apanhadas pelo teu filtro
+                } @else {
+                  {{ porIdentificar().length }} por identificar
+                }
+              </span>
               <div class="chips-ni">
                 @for (e of porIdentificar(); track e.pos) {
-                  <span class="chip"><i>{{ e.pos }}</i>{{ e.raw }}</span>
+                  <span class="chip"><i>{{ e.pos }}</i>{{ e.raw }}@if (e.percentagem !== undefined) {<b class="pct-chip">{{ e.percentagem }}%</b>}</span>
                 }
               </div>
               <p class="nota-rodape">
@@ -179,29 +195,30 @@ export class ColunaComponent {
   protected readonly erro = signal<string | null>(null);
   protected readonly ocupado = signal(false);
 
-  /** Reconhecidas primeiro, com a posição visível em cada uma para não se
-   *  perder a ordem; as por identificar vão para uma linha de chips no fim.
-   *  Oito linhas vazias antes da primeira que interessa era metade do ruído. */
-  protected readonly reconhecidas = computed(() =>
-    (this.analise()?.entradas ?? []).filter((e) => e.estado !== 'por_identificar'));
-  protected readonly porIdentificar = computed(() =>
-    (this.analise()?.entradas ?? []).filter((e) => e.estado === 'por_identificar'));
-
-  /** Mapa nome→regra para marcar cada entrada. A junção é por NOME e não por
-   *  posição: o filtro e o segmentador de rótulos partem a lista com regras
-   *  diferentes, e as posições podem divergir. O nome é a chave estável. */
-  protected readonly porNome = computed(() => {
+  /** Posição → regra do filtro. Junção por POSIÇÃO: o filtro usa o mesmo
+   *  segmentador que a análise, por isso as posições coincidem — e o nome não
+   *  é chave fiável, porque o mesmo ingrediente pode aparecer duas vezes. */
+  protected readonly porPosicao = computed(() => {
     const f = this.analise()?.filtro;
-    const m = new Map<string, { regra: string; condicional: boolean }>();
+    const m = new Map<number, { regra: string; condicional: boolean }>();
     if (!f) return m;
-    for (const e of f.excluidos) m.set(e.ingrediente.trim().toUpperCase(), { regra: e.regra, condicional: false });
-    for (const c of f.condicionais) m.set(c.ingrediente.trim().toUpperCase(), { regra: c.regra, condicional: true });
+    for (const e of f.excluidos) m.set(e.pos, { regra: e.regra, condicional: false });
+    for (const c of f.condicionais) m.set(c.pos, { regra: c.regra, condicional: true });
     return m;
   });
 
-  protected regraDe(raw: string) {
-    return this.porNome().get(raw.trim().toUpperCase()) ?? null;
+  protected regraDe(pos: number) {
+    return this.porPosicao().get(pos) ?? null;
   }
+
+  /** Uma entrada merece linha própria se a LEI diz alguma coisa dela OU se a
+   *  tua lista a apanha. Um Carbomer não é regulado pelos anexos, mas se o teu
+   *  filtro o exclui, esconder-lo numa fila de chips cinzentos era responder
+   *  à pergunta da lei e ignorar a tua. */
+  protected readonly destacadas = computed(() =>
+    (this.analise()?.entradas ?? []).filter((e) => e.estado !== 'por_identificar' || this.porPosicao().has(e.pos)));
+  protected readonly porIdentificar = computed(() =>
+    (this.analise()?.entradas ?? []).filter((e) => e.estado === 'por_identificar' && !this.porPosicao().has(e.pos)));
 
   private temporizador: ReturnType<typeof setTimeout> | undefined;
   /** Contador de pedidos: uma resposta lenta de um texto antigo não pode

@@ -78,3 +78,28 @@ describe('separadores alternativos', () => {
     ]);
   });
 });
+
+describe('vírgulas e percentagens dentro de nomes', () => {
+  it('não parte um locante químico', () => {
+    // "1,2-Hexanediol" virava "2-Hexanediol": a vírgula entre dígitos é parte
+    // do nome, e o "1" sozinho era descartado por curto — em silêncio.
+    const s = segment('Glycerin, 1,2-Hexanediol, 2,4-Dichlorobenzyl Alcohol, Water');
+    expect(s.map((x) => x.raw)).toEqual(['Glycerin', '1,2-Hexanediol', '2,4-Dichlorobenzyl Alcohol', 'Water']);
+  });
+
+  it('continua a separar números de Colour Index', () => {
+    // a vírgula a seguir a "77491" tem espaço depois: é separador
+    const s = segment('Mica, CI 77491, CI 77492, CI 77499');
+    expect(s.map((x) => x.raw)).toEqual(['Mica', 'CI 77491', 'CI 77492', 'CI 77499']);
+  });
+
+  it('tira a percentagem entre parênteses sem deixar os parênteses', () => {
+    const s = segment('Houttuynia Cordata Extract (70%), Glycerin');
+    expect(s[0]!.raw).toBe('Houttuynia Cordata Extract');
+  });
+
+  it('guarda a percentagem declarada, que é a única concentração real de um rótulo', () => {
+    const s = segment('Houttuynia Cordata Extract (70%), Niacinamide 5%, Glycerin, Tocopherol (0,5 %)');
+    expect(s.map((x) => x.percentagem)).toEqual([70, 5, undefined, 0.5]);
+  });
+});

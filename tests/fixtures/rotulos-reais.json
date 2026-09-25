@@ -5,22 +5,70 @@
       "nome": "BAM and BOO — creme facial (Açores)",
       "fonte": "thebamandboo.com",
       "lista": "Aqua, Glycine Soja Oil*, Olea Europaea (Olive) Fruit Oil*, Simmondsia Chinensis (Jojoba) Seed Oil*, Glycerin, Caprylic/Capric Triglyceride, Hydrogenated Coco-Glycerides, Theobroma Cacao Seed Butter*, Butyrospermum Parkii (Shea) Butter*, Glyceryl Stearate SE, Rosa Moschata (Rosehip) Seed Oil*, Parfum, Citrus Aurantium Peel Oil, Sorbitan Stearate, Sucrose Cocoate, Sodium PCA, Xantham Gum, Tocopherol, Limonene**, Linalol**, Terpineol**, Eugenol**, Pinene**, Linalyl Acetate**",
-      "espera": { "lista_traduzida": false, "avaliavel": true, "proibidos": 0, "reconhece": ["Limonene", "Eugenol", "Citrus Aurantium Peel Oil"] }
+      "espera": {
+        "lista_traduzida": false,
+        "avaliavel": true,
+        "proibidos": 0,
+        "reconhece": [
+          "Limonene",
+          "Eugenol",
+          "Citrus Aurantium Peel Oil"
+        ]
+      }
     },
     {
       "nome": "Avril creme neutro — lista traduzida",
       "lista": "Aqua (água), triglicerídeo caprílico / cáprico, oleato de decil, estearato de glicerila SE, óleo orgânico de Prunus amygdalus dulcis (amêndoa doce), álcool cetearílico, manteiga de Butyrospermum parkii (karité) orgânica, glicerina, filtrado de fermento de raiz de Leuconostoc / rabanete, folha de Aloe barbadensis suco em pó orgânico, cetearil glucosídeo, goma xantana, microcristalino celulose, óleo de glicina azul (soja), tocoferol, caprilato de glicerila, levulinato de sódio, ácido láctico, anisato de sódio.",
-      "espera": { "lista_traduzida": true, "avaliavel": false, "indice_nulo": true }
+      "espera": {
+        "lista_traduzida": true,
+        "avaliavel": false,
+        "indice_nulo": true
+      }
     },
     {
       "nome": "Gel de banho (Notino) — INCI com poucos ingredientes regulados",
       "lista": "AQUA (WATER), LAURYL GLUCOSIDE, SODIUM LAUROYL SARCOSINATE, COCAMIDOPROPYL BETAINE, GLYCERIN, BENZYL ALCOHOL, PARFUM (FRAGRANCE), PEG-120 METHYL GLUCOSE DIOLEATE, INULIN, SODIUM CHLORIDE, CITRIC ACID, TETRAMETHYL ACETYLOCTAHYDRONAPHTHALENES, SODIUM GLUCONATE, DEHYDROACETIC ACID, FRUCTOSE, GUAR HYDROXYPROPYLTRIMONIUM CHLORIDE, SODIUM BENZOATE, ALOE BARBADENSIS LEAF JUICE POWDER.",
-      "espera": { "lista_traduzida": false, "avaliavel": true, "proibidos": 0, "reconhece": ["BENZYL ALCOHOL", "DEHYDROACETIC ACID", "SODIUM BENZOATE"], "nao_reconhece": ["CITRIC ACID"] }
+      "espera": {
+        "lista_traduzida": false,
+        "avaliavel": true,
+        "proibidos": 0,
+        "reconhece": [
+          "BENZYL ALCOHOL",
+          "DEHYDROACETIC ACID",
+          "SODIUM BENZOATE"
+        ],
+        "nao_reconhece": [
+          "CITRIC ACID"
+        ]
+      }
     },
     {
       "nome": "Loção corporal — lista traduzida",
       "lista": "Água, manteiga de Butyrospermum Parkii*, extrato da folha de Aloe Barbadensis*, óleo da fruta Olea Europaea*, glicerina**, poliglicerol-3 dicitrato/estearato, amido de Zea Mays*, coco-caprilato, estearato de glicerila SE, caprilato de glicerila, óleo da semente de Prunus Armeniaca*, óleo da semente de Simmondsia Chinensis*, beta-sitosterol, hialuronato de sódio, álcool cetílico, esqualeno, goma xantana, tocoferol.",
-      "espera": { "lista_traduzida": true, "avaliavel": false, "indice_nulo": true }
+      "espera": {
+        "lista_traduzida": true,
+        "avaliavel": false,
+        "indice_nulo": true
+      }
+    },
+    {
+      "nome": "Tónico de Houttuynia 70% (coreano) — nada regulado, dois excluídos pelo filtro",
+      "fonte": "colado pela Bárbara, 25 set 2026",
+      "lista": "Houttuynia Cordata Extract (70%), Glycerin, 1,2-Hexanediol, MethylTrimethicone, Ethylhexyl Stearate, Butylene Glycol, Hydrogenated Poly(C6-14 Olefin), Polyglyceryl-3 Distearate, Fraxinus Rhynchophylla Extract, Ocimum Basilicum (Basil) Flower/Leaf/Stem Extract, Ulmus Davidiana Root Extract, Amaranthus Caudatus Seed Extract, Hydrogenated Lecithin, Sodium Hyaluronate, Glyceryl Glucoside, Water, Glyceryl Stearate, Trehalose, Arginine, Carbomer, Glyceryl Stearate Citrate, Sodium Stearoyl Glutamate, Glucose, Disodium Edta, Betaine, Hydrolyzed Hyaluronic Acid,\nSodium Acetylated Hyaluronate, Ethylhexylglycerin",
+      "espera": {
+        "lista_traduzida": false,
+        "avaliavel": true,
+        "proibidos": 0,
+        "total": 28,
+        "contem_raw": [
+          "1,2-Hexanediol",
+          "Houttuynia Cordata Extract"
+        ],
+        "filtro_exclui": [
+          "Carbomer",
+          "Disodium Edta"
+        ]
+      }
     }
   ]
 }
