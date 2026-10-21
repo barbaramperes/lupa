@@ -74,7 +74,14 @@ export class LupaService {
     this.aCarregarNucleo.set(true);
     this.aPreparar = (async () => {
       const [nucleo, { Matcher }, { analisar }, { aplicarFiltro }] = await Promise.all([
-        firstValueFrom(this.http.get<CoreBundle>(environment.nucleoUrl)),
+        // O core.json não tem hash no nome e o Pages serve-o com max-age=600:
+        // sem revalidar, uma correção aos dados demorava 10 minutos a chegar e
+        // o motor novo corria sobre dados velhos. "no-cache" pergunta ao
+        // servidor pelo ETag; se nada mudou, a resposta é um 304 sem corpo.
+        fetch(environment.nucleoUrl, { cache: 'no-cache' }).then((r) => {
+          if (!r.ok) throw new Error(`núcleo: HTTP ${r.status}`);
+          return r.json() as Promise<CoreBundle>;
+        }),
         import('../../../../packages/core/src/match'),
         import('../../../../packages/core/src/analisar'),
         import('../../../../packages/core/src/filtros'),
