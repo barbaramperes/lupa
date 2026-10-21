@@ -271,3 +271,27 @@ describe('REACH, Anexo XVII, entrada 70 (D4, D5, D6)', () => {
     expect(a.resumo.com_limites).toBe(1);
   });
 });
+
+describe('D21 — espumas da Mercadona', () => {
+  // Rótulo real: Espuma cabello Xtra Forte Deliplus, EAN 8402001026614 (ago 2026).
+  const espuma = 'Aqua, Isobutane, Polyquaternium-4, PVP, Propane, Polyquaternium-16, Propylene Glycol, ' +
+    'PEG-40 Hydrogenated Castor Oil, Sodium Benzoate, Parfum, Panthenol, Butane, Limonene';
+
+  it('o propelente só é proibido se trouxer butadieno: proibição condicional', () => {
+    const a = corre(espuma);
+    expect(a.resumo.proibidos, 'butano e isobutano não são proibidos sem condição').toBe(0);
+    expect(a.resumo.proibidos_condicionais).toBe(2);
+    expect(a.resumo.com_cmr, 'o cancerígeno 1A é o butadieno, não o butano').toBe(0);
+  });
+
+  it('PVP é o polímero, não o monómero proibido', () => {
+    const pvp = corre(espuma).entradas.find((e) => e.raw === 'PVP')!;
+    expect(pvp.afirmacoes.some((a) => a.kind === 'annex_ii_banned')).toBe(false);
+  });
+
+  it('o PABA continua proibido, agora pelo nome que o CosIng dá', () => {
+    for (const nome of ['PABA', 'Ethyl PABA', 'Glyceryl PABA']) {
+      expect(corre(nome).resumo.proibidos, nome).toBe(1);
+    }
+  });
+});

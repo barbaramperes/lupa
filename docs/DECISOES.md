@@ -507,3 +507,35 @@ Cada uma tem teste com o rótulo real que a expôs.
 **MethylTrimethicone** em 4.º lugar — um silicone que a regra antiga deixava
 passar. O teste desse rótulo esperava dois excluídos; eram três. O teste
 estava a fixar o erro, e foi corrigido.
+
+---
+
+## D21 — Uma proibição condicional também se escreve "if it contains"
+
+**Descoberto com as espumas da Mercadona**, 21 out 2026. A Lupa dizia
+"Contém substância proibida na UE", com cancerígeno 1A, a uma espuma de
+cabelo de 1,85 €. O culpado era o propelente: o Anexo II proíbe "Butane, if
+it contains ≥ 0,1 % w/w Butadiene". Quem é cancerígeno é o butadieno. O
+butano de grau cosmético é o propelente de todas as lacas e espumas da Europa.
+
+D11 já separava as proibições condicionais, mas só reconhecia a condição
+escrita pela positiva ("except if", "unless"). A mesma coisa escrita pela
+negativa — **"if it contains" / "if they contain"** — passava por proibição
+absoluta. São **283 entradas** do Anexo II: propelentes, gases e destilados
+de petróleo, alcatrões. A frase da interface passou a servir as duas formas:
+"A proibição tem uma condição".
+
+**Segundo falso positivo no mesmo rótulo: PVP.** No índice, "PVP" apontava
+para o 1-vinil-2-pirrolidona (o monómero, proibido, cancerígeno 2). Vinha da
+ponte do PubChem, onde "PVP" é sinónimo dele. Num rótulo, PVP é o INCI da
+polivinilpirrolidona, o polímero, autorizado. **Regra nova na ponte:** siglas
+só em maiúsculas, de 2 a 5 letras, não entram. Saíram 443, e a lista é um
+catálogo de colisões à espera de acontecer: SPF, INCI, LOTUS, PALM, LYE, LIDL.
+
+**E a sigla que fazia falta: PABA.** Ao ver o que saía, o PABA (proibido,
+Anexo II 167) estava lá — só era encontrado pela ponte. O CosIng tem-no na
+coluna de ingredientes identificados (",PABA,GLYCERYL PABA,BUTYL PABA,ETHYL
+PABA,…"), mas a célula começa por vírgula, o fragmento vazio chumbava o
+teste de comprimento e a célula entrava inteira como um nome só. Corrigido no
+`explodirIdentificados`: PABA, Ethyl PABA, Glyceryl PABA, Lead Acetate e o
+resto dessas células passam a vir da fonte legal, não da sorte.

@@ -72,8 +72,8 @@ import { ANEXO_NUM, ANEXO_ROTULO, CMR_ROTULO, limpar, type Entrada } from './mod
 
           @if (a.payload.excecao) {
             <p class="excecao">
-              A proibição não é absoluta: <b>{{ limpar(a.payload.excecao) }}</b>. Um produto no mercado
-              europeu presume-se conforme com esta condição — quem a tem de cumprir e documentar é o fabricante.
+              A proibição tem uma condição: <b>{{ limpar(a.payload.excecao) }}</b>. Um produto no mercado
+              europeu presume-se conforme — quem a tem de cumprir e documentar é o fabricante.
             </p>
           }
 

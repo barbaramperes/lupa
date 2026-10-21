@@ -50,6 +50,11 @@ export function nomeUtilizavel(nome: string): boolean {
   if (RE_CAS.test(t)) return false;
   if (MARCADO.test(t)) return false;
   if (!/[A-Za-z]{2}/.test(t)) return false;
+  // Siglas em maiúsculas (PVP, NVP, DEA, TEA) são ambíguas por natureza: no
+  // PubChem, "PVP" é sinónimo do 1-vinil-2-pirrolidona (monómero, proibido),
+  // mas num rótulo PVP é o INCI da polivinilpirrolidona (polímero,
+  // autorizado). Uma sigla que só a ponte conhece não entra no índice (D21).
+  if (/^[A-Z]{2,5}$/.test(t)) return false;
   for (const re of LIXO) if (re.test(t)) return false;
   // linhas com separadores de campo são despejos de base de dados, não nomes
   if (/[|\t]/.test(t)) return false;

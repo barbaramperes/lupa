@@ -142,7 +142,13 @@ export function extrairInciEmbutido(nomeQuimico: string): string[] {
   return out;
 }
 
-const RE_EXCECAO = /,?\s*\b(except if|except when|except those|unless|with the exception of|other than)\b/i;
+/* "if it contains" / "if they contain" é a mesma coisa dita ao contrário: a
+ * proibição só se aplica SE a matéria-prima trouxer um contaminante acima de
+ * um limite. "Butane, if it contains ≥ 0,1 % w/w Butadiene" não proíbe o
+ * butano — proíbe o butano contaminado. São 283 entradas do Anexo II
+ * (propelentes, destilados de petróleo, alcatrões), e sem isto o propelente
+ * de qualquer espuma ou laca aparecia como "proibido, cancerígeno 1A" (D21). */
+const RE_EXCECAO = /,?\s*\b(except if|except when|except those|unless|with the exception of|other than|if (?:it|they) contains?)\b/i;
 
 /** Separa o nome da substância da cláusula de exceção que o acompanha.
  *  "Petrolatum, except if the full refining history is known…" tem de dar
@@ -266,7 +272,12 @@ export function explodirIdentificados(celula: string): string[] {
   const out: string[] = [];
   for (const parte of base) {
     if (!parte.includes(',')) { out.push(parte); continue; }
-    const frags = parte.split(',').map((s) => s.trim());
+    // Células como ",PABA,GLYCERYL PABA,BUTYL PABA" e ",LEAD ACETATE,," começam
+    // ou acabam em vírgula. O fragmento vazio chumbava o teste de comprimento e
+    // a célula inteira entrava como um só nome: o PABA proibido só era
+    // encontrado por acaso, pela sigla vinda da ponte (D21).
+    const frags = parte.split(',').map((s) => s.trim()).filter(Boolean);
+    if (frags.length === 1) { out.push(frags[0]!); continue; }
     if (frags.every((f) => f.length >= 4)) out.push(...frags);
     else out.push(parte);
   }
