@@ -26,7 +26,7 @@ function gravarPreferencia(chave: string, valor: boolean): void {
     <div class="casca">
       <header class="topo">
         <div class="marca">
-          <span class="sobrancelha">Anexos II a VI do Reg. (CE) 1223/2009</span>
+          <span class="sobrancelha">Anexos II a VI do Reg. (CE) 1223/2009 · REACH</span>
           <h1>Lupa de Rótulos</h1>
           <p class="sub">O que a lei diz sobre cada ingrediente do rótulo, com a fonte de cada afirmação.</p>
         </div>
@@ -75,7 +75,8 @@ function gravarPreferencia(chave: string, valor: boolean): void {
         </p>
         <p>
           <b>Fonte.</b> CosIng, base de dados de ingredientes cosméticos da Comissão Europeia, sob CC BY 4.0 nos termos
-          da Decisão 2011/833/UE.
+          da Decisão 2011/833/UE. Para os silicones D4, D5 e D6, também o REACH (Anexo XVII, entrada 70, Reg. (UE)
+          2024/1328), com o texto do Jornal Oficial.
           @if (info(); as n) {
             <span class="mono">
               Núcleo de {{ n.nucleo.construido_em }} · {{ n.nucleo.substancias.toLocaleString('pt-PT') }} substâncias ·

@@ -102,7 +102,11 @@ import { ANEXO_NUM, ANEXO_ROTULO, CMR_ROTULO, limpar, type Entrada } from './mod
           }
 
           <span class="proveniencia">
-            Reg. (CE) 1223/2009, Anexo {{ numAnexo(a.kind) }} · extraído {{ a.source.retrieved_at }} · {{ a.source.licence }}
+            @if (a.source.dataset === 'eurlex-reach') {
+              Reg. (UE) 2024/1328 (REACH, Anexo XVII, entrada {{ a.payload.reference_number }}) · Jornal Oficial · {{ a.source.licence }}
+            } @else {
+              Reg. (CE) 1223/2009, Anexo {{ numAnexo(a.kind) }} · extraído {{ a.source.retrieved_at }} · {{ a.source.licence }}
+            }
           </span>
         </div>
       }
