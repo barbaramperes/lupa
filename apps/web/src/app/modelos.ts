@@ -11,11 +11,14 @@ export const ANEXO_ROTULO: Record<string, string> = {
   annex_iv_colorant: 'Corante autorizado',
   annex_v_preservative: 'Conservante autorizado',
   annex_vi_uv_filter: 'Filtro UV autorizado',
+  reach_xvii_restricted: 'Restringido pelo REACH',
 };
 
 export const ANEXO_NUM: Record<string, string> = {
   annex_ii_banned: 'II', annex_iii_restricted: 'III', annex_iv_colorant: 'IV',
   annex_v_preservative: 'V', annex_vi_uv_filter: 'VI',
+  // não é um anexo do Reg. 1223/2009: a interface tem de dizer de que lei vem
+  reach_xvii_restricted: 'XVII do REACH',
 };
 
 export const CMR_ROTULO: Record<string, string> = {

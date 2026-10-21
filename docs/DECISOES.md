@@ -457,3 +457,53 @@ segmentadores. O filtro usava o seu, com regras diferentes, e cada correção �
 travessões (D12), pontos médios, agora locantes — tinha de ser feita duas
 vezes. O filtro passou a usar o mesmo `segment()` da análise; as posições
 coincidem e a interface junta as camadas por posição, não por nome.
+
+---
+
+## D20 — Os anexos dos cosméticos não são a única lei; e regras pela raiz, não pelo sufixo
+
+**Descoberto a analisar a gama da Philip Martin's e o Metal Detox**, 21 out
+2026. O primeiro ingrediente do Shine Rose e do Infinito é o
+Cyclopentasiloxane (D5), e a Lupa dizia "por identificar". Não é por falta de
+dados: o D5 não está em nenhum anexo do Reg. 1223/2009. Está no **REACH,
+Anexo XVII, entrada 70** (Reg. 2024/1328): a partir de 0,1%, D4 e D5 em
+cosméticos que se enxaguam desde 31 jan 2020; D4, D5 e D6 em **todos** os
+outros cosméticos a partir de **6 jun 2027**. Um sérum de silicone volátil
+vendido hoje tem de ser reformulado em 20 meses.
+
+**O que mudou:** `packages/ingest/src/reach.ts` junta a entrada 70 ao núcleo,
+com o texto do Jornal Oficial copiado literalmente (só sem as chamadas de
+nota) e proveniência `eurlex-reach`/CELEX 32024R1328. O D4 já existia (Anexo
+II desde 2019) e fica com as duas afirmações; D5 e D6 nascem como substâncias.
+O tipo `reach_xvii_restricted` estava no modelo desde o início e nunca tinha
+sido preenchido. Conta como "com limites", nunca como proibição, e a interface
+diz que vem do REACH e porquê (ambiente, não toxicidade).
+
+Uma nota sobre a minha própria confiança: num documento para ela escrevi
+"desde jun 2026" para os produtos sem enxaguamento, de memória. A data certa é
+2027 — só a apanhei ao ir ao texto oficial. O EUR-Lex bloqueia pedidos
+automáticos; o texto vem do Serviço das Publicações
+(`publications.europa.eu/resource/celex/32024R1328`, Accept: XHTML, língua
+`eng`).
+
+**Quatro falhas no filtro, todas da mesma família — padrões por sufixo ou por
+nome solto, em vez de pela raiz certa:**
+- `\bsalicylate\b` como filtro UV apanhava perfumes: Amyl Salicylate (que nem
+  está na lista dela) e Benzyl Salicylate (que está, mas com regra própria, e
+  aparecia com o rótulo errado). O Anexo VI só tem dois salicilatos: Homosalate
+  e Ethylhexyl Salicylate. A regra nomeia-os.
+- `benzotriazolyl` apanhava o Benzotriazolyl Dodecyl p-Cresol, um
+  estabilizador que protege a fórmula da luz e não está no Anexo VI. A regra
+  passa a `bis-benzotriazolyl` (Tinosorb M).
+- Silicones: `dimethicone` deixava escapar o **Dimethiconol**, 2.º e 3.º
+  ingrediente de dois séruns. A regra passa à raiz `methicon` + `silox`.
+- Etoxilados: a lista de nomes deixava escapar Ceteth e Alketh (Metal
+  Detox). Em INCI, `-eth-N` é a convenção para N unidades de óxido de etileno;
+  a regra usa a convenção.
+
+Cada uma tem teste com o rótulo real que a expôs.
+
+**E o que a regra nova encontrou sozinha:** o tónico coreano de D19 tem
+**MethylTrimethicone** em 4.º lugar — um silicone que a regra antiga deixava
+passar. O teste desse rótulo esperava dois excluídos; eram três. O teste
+estava a fixar o erro, e foi corrigido.

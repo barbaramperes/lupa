@@ -62,11 +62,16 @@ export const FILTRO_LOWTOX: Filtro = {
      *
      * Esta regra é gerada do Anexo VI do Reg. (CE) 1223/2009: exclui todos
      * os filtros UV autorizados na UE EXCETO óxido de zinco e dióxido de
-     * titânio. Assim não apodrece quando a UE autorizar um filtro novo. */
+     * titânio. Assim não apodrece quando a UE autorizar um filtro novo.
+     *
+     * Os padrões nomeiam o filtro inteiro, não um sufixo. "-salicylate" e
+     * "benzotriazolyl" sozinhos apanhavam perfumes (Amyl Salicylate, Benzyl
+     * Salicylate) e um estabilizador que protege a fórmula, não a pele
+     * (Benzotriazolyl Dodecyl p-Cresol). Nenhum está no Anexo VI. */
     { rotulo: 'Filtro UV químico (só minerais)', veredicto: 'excluido', padroes: [
       /benzophenone/i, /benzylidene camphor/i, /dibenzoylmethane/i, /methoxycinnamate/i,
-      /\bsalicylate\b/i, /homosalate/i, /octocrylene/i, /octinoxate/i, /oxybenzone/i, /avobenzone/i,
-      /triazine/i, /triazone/i, /\bpaba\b/i, /benzimidazole/i, /benzotriazolyl/i,
+      /ethylhexyl salicylate/i, /octisalate/i, /homosalate/i, /octocrylene/i, /octinoxate/i, /oxybenzone/i, /avobenzone/i,
+      /triazine/i, /triazone/i, /\bpaba\b/i, /benzimidazole/i, /bis-benzotriazolyl/i,
       /drometrizole/i, /polysilicone-15/i, /camphor sulfonic acid/i, /piperazine\b/i,
       /diethylamino hydroxybenzoyl/i, /cyanoacetate/i, /camphor benzalkonium/i,
     ] },
@@ -80,7 +85,11 @@ export const FILTRO_LOWTOX: Filtro = {
     { rotulo: 'Clorfenesina', padroes: [/chlorphenesin/i], veredicto: 'excluido' },
     { rotulo: 'Cloroxilenol', padroes: [/chloroxylenol/i], veredicto: 'excluido' },
     { rotulo: 'Cocamidopropil hidroxisultaína', padroes: [/cocamidopropyl hydroxysultaine/i], veredicto: 'excluido' },
-    { rotulo: 'Ciclopentasiloxano e silicones', padroes: [/cyclopentasiloxane/i, /cyclohexasiloxane/i, /cyclotetrasiloxane/i, /dimethicone/i, /siloxane/i, /silsesquioxane/i], veredicto: 'excluido' },
+    /* "methicon" apanha a família inteira pela raiz: Dimethicone, Dimethiconol
+     * (escapava, e é o 2.º ingrediente de vários séruns), Amodimethicone,
+     * Trimethicone, Caprylyl Methicone. "silox" apanha Siloxane e
+     * Trimethylsiloxysilicate. O Polysilicone-15 é filtro UV e cai antes. */
+    { rotulo: 'Ciclopentasiloxano e silicones', padroes: [/cyclo\w*siloxane/i, /methicon/i, /silox/i, /silsesquioxane/i, /polysilicone-\d/i], veredicto: 'excluido' },
     { rotulo: 'DEA / etanolaminas', padroes: [/diethanolamine/i, /\bdea\b/i, /^ethanolamine/i, /triethanolamine/i, /\btea-/i], veredicto: 'excluido' },
     { rotulo: 'EDTA', padroes: [/\bedta\b/i], veredicto: 'excluido' },
     { rotulo: 'Etilenoglicol', padroes: [/ethylene glycol/i], veredicto: 'excluido' },
@@ -94,7 +103,11 @@ export const FILTRO_LOWTOX: Filtro = {
     { rotulo: 'Óleo mineral, parafina, vaselina', padroes: [/mineral oil/i, /paraffinum/i, /\bparaffin\b/i, /petrolatum/i, /petroleum/i, /cera microcristallina/i, /microcrystalline wax/i, /ozokerite/i], veredicto: 'excluido' },
     { rotulo: 'Parabenos', padroes: [/paraben/i], veredicto: 'excluido' },
     { rotulo: 'Ftalatos', padroes: [/phthalate/i], veredicto: 'excluido' },
-    { rotulo: 'PEG e etoxilados', padroes: [/\bpeg-\d/i, /polyethylene glycol/i, /\bpolysorbate/i, /steareth/i, /trideceth/i, /\boleth-/i, /\bpareth-/i], veredicto: 'excluido' },
+    /* Em INCI, "-eth-N" é a convenção para N unidades de óxido de etileno:
+     * Ceteth-20, C12-13 Alketh-23, Beheneth-10, Glycereth-26. Nomeá-los um a um
+     * deixava escapar os que ninguém se lembrou de listar. Laureth, Ceteareth
+     * e Isoceteth têm regra própria, mais acima, e ficam com o nome delas. */
+    { rotulo: 'PEG e etoxilados', padroes: [/\bpeg-\d/i, /polyethylene glycol/i, /\bpolysorbate/i, /\w+eth-\d/i], veredicto: 'excluido' },
     { rotulo: 'PTFE', padroes: [/polytetrafluoroethylene/i, /\bptfe\b/i], veredicto: 'excluido' },
     { rotulo: 'PAPB', padroes: [/polyaminopropyl biguanide/i], veredicto: 'excluido' },
     { rotulo: 'Polyquaternium', padroes: [/polyquaternium/i], veredicto: 'excluido' },

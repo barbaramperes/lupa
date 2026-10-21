@@ -40,6 +40,38 @@ describe('filtro de exclusão', () => {
     expect(mineral.passa).toBe(true);
   });
 
+  it('um perfume acabado em -salicylate não é filtro UV', () => {
+    // Rótulos reais: Infinito (Philip Martin's) e Metal Detox (L'Oréal).
+    const r = aplicarFiltro('Cyclopentasiloxane, Parfum, Benzyl Salicylate, Amyl Salicylate, Ethylhexyl Salicylate');
+    const regra = (nome: string) => r.excluidos.find((e) => e.ingrediente === nome)?.regra;
+    expect(regra('Amyl Salicylate'), 'perfume, e não está na lista').toBeUndefined();
+    expect(regra('Benzyl Salicylate'), 'está na lista, mas pelo nome dele').toBe('Salicilato de benzilo');
+    expect(regra('Ethylhexyl Salicylate'), 'este sim, é do Anexo VI').toBe('Filtro UV químico (só minerais)');
+  });
+
+  it('um estabilizador da fórmula não é filtro UV; o Tinosorb M é', () => {
+    expect(aplicarFiltro('Aqua, Benzotriazolyl Dodecyl p-Cresol').passa).toBe(true);
+    expect(aplicarFiltro('Aqua, Methylene Bis-Benzotriazolyl Tetramethylbutylphenol').excluidos[0]?.regra)
+      .toBe('Filtro UV químico (só minerais)');
+  });
+
+  it('apanha a família dos silicones pela raiz', () => {
+    const r = aplicarFiltro('Dimethiconol, Amodimethicone, Caprylyl Methicone, Phenyl Trimethicone, Trimethylsiloxysilicate, Cyclomethicone');
+    expect(r.excluidos.length).toBe(6);
+    expect(new Set(r.excluidos.map((e) => e.regra))).toEqual(new Set(['Ciclopentasiloxano e silicones']));
+    expect(aplicarFiltro('Aqua, Polysilicone-15').excluidos[0]?.regra, 'é filtro UV antes de ser silicone')
+      .toBe('Filtro UV químico (só minerais)');
+  });
+
+  it('apanha etoxilados pela convenção -eth-N, não só pelos nomes que alguém listou', () => {
+    const r = aplicarFiltro('PPG-5-Ceteth-20, C12-13 Alketh-23, Trideceth-6, Glycereth-26, Oleth-10');
+    expect(r.excluidos.map((e) => e.regra)).toEqual(Array(5).fill('PEG e etoxilados'));
+    // e não confunde com o que só tem "eth" no meio
+    expect(aplicarFiltro('Bis-Ethylhexyloxyphenol Methoxyphenyl Triazine').excluidos[0]?.regra)
+      .toBe('Filtro UV químico (só minerais)');
+    expect(aplicarFiltro('Aqua, Methylpropanediol, Ethylhexylglycerin').passa).toBe(true);
+  });
+
   it('separadores que não são vírgula', () => {
     // travessão (Uriage) e ponto médio (Rilastil)
     expect(aplicarFiltro('AQUA — DIMETHICONE — GLYCERIN').excluidos.length).toBe(1);

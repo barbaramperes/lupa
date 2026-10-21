@@ -52,7 +52,7 @@
       }
     },
     {
-      "nome": "Tónico de Houttuynia 70% (coreano) — nada regulado, dois excluídos pelo filtro",
+      "nome": "Tónico de Houttuynia 70% (coreano) — nada regulado, três excluídos pelo filtro (o silicone escapava até D20)",
       "fonte": "colado pela Bárbara, 25 set 2026",
       "lista": "Houttuynia Cordata Extract (70%), Glycerin, 1,2-Hexanediol, MethylTrimethicone, Ethylhexyl Stearate, Butylene Glycol, Hydrogenated Poly(C6-14 Olefin), Polyglyceryl-3 Distearate, Fraxinus Rhynchophylla Extract, Ocimum Basilicum (Basil) Flower/Leaf/Stem Extract, Ulmus Davidiana Root Extract, Amaranthus Caudatus Seed Extract, Hydrogenated Lecithin, Sodium Hyaluronate, Glyceryl Glucoside, Water, Glyceryl Stearate, Trehalose, Arginine, Carbomer, Glyceryl Stearate Citrate, Sodium Stearoyl Glutamate, Glucose, Disodium Edta, Betaine, Hydrolyzed Hyaluronic Acid,\nSodium Acetylated Hyaluronate, Ethylhexylglycerin",
       "espera": {
@@ -66,7 +66,8 @@
         ],
         "filtro_exclui": [
           "Carbomer",
-          "Disodium Edta"
+          "Disodium Edta",
+          "MethylTrimethicone"
         ]
       }
     }

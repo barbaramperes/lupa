@@ -246,3 +246,28 @@ describe('proibições condicionais do Anexo II', () => {
     expect(a.editorial.indice).toBeLessThanOrEqual(25);
   });
 });
+
+describe('REACH, Anexo XVII, entrada 70 (D4, D5, D6)', () => {
+  it('o D5 deixa de estar "por identificar"', () => {
+    // 1.º ingrediente do Shine Rose e do Infinito (Philip Martin's). Não está
+    // em nenhum anexo dos cosméticos, só no REACH.
+    const e = corre('Cyclopentasiloxane, Dimethiconol, Parfum').entradas[0]!;
+    expect(e.estado).toBe('reconhecido');
+    const reach = e.afirmacoes.find((a) => a.kind === 'reach_xvii_restricted');
+    expect(reach?.source.celex).toBe('32024R1328');
+    expect(reach?.payload.tipo_produto, 'a data dos cosméticos sem enxaguamento').toMatch(/6 June 2027/);
+  });
+
+  it('o D6 também, e o D4 fica com as duas leis', () => {
+    expect(corre('Cyclohexasiloxane').entradas[0]!.afirmacoes.map((a) => a.kind)).toContain('reach_xvii_restricted');
+    const d4 = corre('Cyclotetrasiloxane').entradas[0]!.afirmacoes.map((a) => a.kind);
+    expect(d4).toContain('annex_ii_banned');
+    expect(d4).toContain('reach_xvii_restricted');
+  });
+
+  it('uma restrição do REACH não é uma proibição', () => {
+    const a = corre('Cyclopentasiloxane, Dimethicone');
+    expect(a.resumo.proibidos).toBe(0);
+    expect(a.resumo.com_limites).toBe(1);
+  });
+});

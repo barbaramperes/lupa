@@ -77,6 +77,15 @@ import { ANEXO_NUM, ANEXO_ROTULO, CMR_ROTULO, limpar, type Entrada } from './mod
             </p>
           }
 
+          @if (a.kind === 'reach_xvii_restricted') {
+            <p class="excecao">
+              Não vem da lei dos cosméticos, vem do REACH (químicos), por razões ambientais: persiste e
+              acumula-se. A partir de 0,1%: nos produtos que se enxaguam, o D4 e o D5 já estão limitados desde
+              31 jan 2020; em todos os outros cosméticos, incluindo os que ficam na pele ou no cabelo, a partir
+              de <b>6 jun 2027</b>.
+            </p>
+          }
+
           @if (a.payload.concentracao_maxima) {
             <dl><dt>máx.</dt><dd>{{ limpar(a.payload.concentracao_maxima) }}</dd></dl>
           }

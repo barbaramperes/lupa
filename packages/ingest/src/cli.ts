@@ -3,6 +3,7 @@ import { gzipSync, brotliCompressSync, constants } from 'node:zlib';
 import { ANEXOS, descarregarAnexo, lerAnexo, construirNucleo, type AnexoLido } from './cosing';
 import { construirPonte } from './pubchem';
 import { enriquecerComPonte } from './enriquecer';
+import { aplicarReach } from './reach';
 
 const RAIZ = new URL('../../../', import.meta.url).pathname;
 const DIR_BRUTO = `${RAIZ}data/raw`;
@@ -42,6 +43,11 @@ if (existsSync(caminhoAnterior)) {
 }
 
 const nucleo = construirNucleo(lidos, hoje);
+
+// ── REACH, Anexo XVII, entrada 70 (D4, D5, D6) ───────────────────────────
+// Antes da ponte, para o CAS do D5 e do D6 também receber sinónimos.
+const reach = aplicarReach(nucleo, hoje);
+console.log(`\n  REACH XVII/70: ${reach.afirmacoes} afirmações, ${reach.criadas} substâncias novas (D5, D6 não estão nos anexos)`);
 
 // ── ponte CAS → nomes de rótulo ──────────────────────────────────────────
 // Opcional por desenho: sem o ficheiro do PubChem o núcleo continua correto,
