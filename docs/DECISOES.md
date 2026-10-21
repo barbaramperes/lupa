@@ -539,3 +539,19 @@ PABA,…"), mas a célula começa por vírgula, o fragmento vazio chumbava o
 teste de comprimento e a célula entrava inteira como um nome só. Corrigido no
 `explodirIdentificados`: PABA, Ethyl PABA, Glyceryl PABA, Lead Acetate e o
 resto dessas células passam a vir da fonte legal, não da sorte.
+
+**Regressão apanhada no próprio dia, antes de responder com ela.** Partir
+bem as células de identificados ligou os 68 ingredientes de citrinos que o
+CosIng identifica na entrada 358 (furocumarinas) a essa proibição — e a 358
+diz "except for normal content in natural essences used", forma que o
+`RE_EXCECAO` também não conhecia. O óleo de casca de limão de um creme de
+caracóis apareceu como "proibido". Acrescentado "except for" (357, 358, 360;
+a 395 é remissão e continua proibida). Medido contra o núcleo da véspera: 286
+entradas passam a condicionais (283 "if it contains" + 3 "except for") e 60
+chaves passam a proibição absoluta, todas certas — 46 sais de DEA (entrada
+411, "Secondary alkyl- and alkanolamines and their salts"), ésteres de PABA,
+aminas simpaticomiméticas e derivados de hidrazina que o CosIng identifica.
+
+**E um separador novo:** Klorane e Phyto publicam a lista separada por ponto
+final. Trata-se o ponto como separador só quando quase não há vírgulas, para
+"Alcohol Denat." numa lista normal continuar inteiro.

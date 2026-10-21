@@ -93,7 +93,14 @@ export function segment(label: string): Segment[] {
   // não corresponde a nada e passa por "por identificar".
   // Só se separa em travessão RODEADO DE ESPAÇOS: o hífen dentro de um nome
   // (PEG-100, C10-30, Coco-Caprylate) nunca os tem, e parti-lo destruiria o nome.
-  const normalizado = label.replace(/\s+[—–]\s+/g, ',').replace(/[\n\r;•|\t]+/g, ',');
+  let normalizado = label.replace(/\s+[—–]\s+/g, ',').replace(/[\n\r;•|\t]+/g, ',');
+  // Há marcas (Klorane, Phyto) que publicam a lista separada por PONTO FINAL:
+  // "AQUA. CETEARYL ALCOHOL. GLYCERIN." Só se trata o ponto como separador
+  // quando quase não há vírgulas — num rótulo normal, o ponto de "Alcohol
+  // Denat." é parte do nome e tem de ficar.
+  const pontos = normalizado.match(/\.\s+(?=[A-Za-z0-9])/g)?.length ?? 0;
+  const virgulas = normalizado.match(/,/g)?.length ?? 0;
+  if (pontos >= 3 && virgulas * 4 < pontos) normalizado = normalizado.replace(/\.\s+(?=[A-Za-z0-9])/g, ',').replace(/\.\s*$/, '');
   for (let i = 0; i < normalizado.length; i++) {
     const ch = normalizado[i]!;
     if (ch === '(' || ch === '[') depth++;

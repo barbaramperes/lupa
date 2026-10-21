@@ -80,6 +80,12 @@ describe('separadores alternativos', () => {
 });
 
 describe('vírgulas e percentagens dentro de nomes', () => {
+  it('lista separada por ponto final (Klorane, Phyto) parte-se; numa lista com vírgulas o ponto fica', () => {
+    expect(segment('AQUA. CETEARYL ALCOHOL. GLYCERIN. FRAGRANCE (PARFUM). YELLOW 5 (CI 19140).').map((s) => s.raw))
+      .toEqual(['AQUA', 'CETEARYL ALCOHOL', 'GLYCERIN', 'FRAGRANCE (PARFUM)', 'YELLOW 5 (CI 19140)']);
+    expect(segment('Aqua, Alcohol Denat., Glycerin, Parfum').length).toBe(4);
+  });
+
   it('não parte um locante químico', () => {
     // "1,2-Hexanediol" virava "2-Hexanediol": a vírgula entre dígitos é parte
     // do nome, e o "1" sozinho era descartado por curto — em silêncio.

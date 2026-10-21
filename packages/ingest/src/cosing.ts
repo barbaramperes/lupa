@@ -147,8 +147,13 @@ export function extrairInciEmbutido(nomeQuimico: string): string[] {
  * um limite. "Butane, if it contains ≥ 0,1 % w/w Butadiene" não proíbe o
  * butano — proíbe o butano contaminado. São 283 entradas do Anexo II
  * (propelentes, destilados de petróleo, alcatrões), e sem isto o propelente
- * de qualquer espuma ou laca aparecia como "proibido, cancerígeno 1A" (D21). */
-const RE_EXCECAO = /,?\s*\b(except if|except when|except those|unless|with the exception of|other than|if (?:it|they) contains?)\b/i;
+ * de qualquer espuma ou laca aparecia como "proibido, cancerígeno 1A" (D21).
+ *
+ * "except for" também: "Furocoumarines … except for normal content in natural
+ * essences used" (358), safrol (360), benzoatos de coniferilo (357). Sem isto,
+ * os 68 ingredientes de citrinos que o CosIng identifica na entrada 358
+ * apareciam como proibidos sem condição — o óleo de casca de limão incluído. */
+const RE_EXCECAO = /,?\s*\b(except if|except when|except those|except for|unless|with the exception of|other than|if (?:it|they) contains?)\b/i;
 
 /** Separa o nome da substância da cláusula de exceção que o acompanha.
  *  "Petrolatum, except if the full refining history is known…" tem de dar

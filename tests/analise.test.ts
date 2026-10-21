@@ -294,4 +294,15 @@ describe('D21 — espumas da Mercadona', () => {
       expect(corre(nome).resumo.proibidos, nome).toBe(1);
     }
   });
+
+  it('um óleo de citrino não é proibido: as furocumarinas têm "except for" o teor natural', () => {
+    // Regressão apanhada no próprio dia: partir bem a célula da entrada 358
+    // ligou 68 ingredientes de citrinos a uma proibição lida como absoluta.
+    const a = corre('Aqua, Citrus Limon Peel Oil, Citrus Aurantifolia Fruit Extract, Parfum');
+    expect(a.resumo.proibidos).toBe(0);
+  });
+
+  it('os sais de DEA continuam proibidos (aminas secundárias, entrada 411)', () => {
+    expect(corre('Aqua, DEA-Cetyl Phosphate').resumo.proibidos).toBe(1);
+  });
 });
