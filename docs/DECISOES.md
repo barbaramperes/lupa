@@ -555,3 +555,23 @@ aminas simpaticomiméticas e derivados de hidrazina que o CosIng identifica.
 **E um separador novo:** Klorane e Phyto publicam a lista separada por ponto
 final. Trata-se o ponto como separador só quando quase não há vírgulas, para
 "Alcohol Denat." numa lista normal continuar inteiro.
+
+---
+
+## D22 — Proibições com âmbito ou limite; e dois falsos do filtro
+
+**Descoberto ao triar ~120 produtos de cabelo para ela**, 22 out 2026.
+
+- **"when used as a substance in hair dye products"** (151 entradas): a
+  proibição vale só para tintas de cabelo. O CI 14700 aparecia como
+  "proibido" no champô MOMO da Davines, onde é o corante do produto, coisa
+  que o Anexo IV (entrada 18) autoriza. Passa a condicional, e a interface diz
+  "só vale para tintas de cabelo". As 32 "when used as a fragrance
+  ingredient" ficam absolutas: num rótulo, é esse o uso.
+- **"if the maximum theoretical concentration of releasable formaldehyde …
+  ≥ 0,1 %"** (1605–1607, 1669): libertadores de formaldeído proibidos só acima
+  do limite; abaixo, o Anexo V autoriza-os.
+- Filtro: **"PEG 180 M"** com espaço escapava (a Lola Dream Cream passava);
+  **"Fragrance (Phthalate Free)"** chumbava por ftalatos (Bounce Curl).
+
+A prata coloidal (nano) aparece como proibida e está certo: entrada 1727.

@@ -72,6 +72,13 @@ describe('filtro de exclusão', () => {
     expect(aplicarFiltro('Aqua, Methylpropanediol, Ethylhexylglycerin').passa).toBe(true);
   });
 
+  it('PEG escrito com espaço, e "phthalate free" que não é um ftalato', () => {
+    // Lola Dream Cream ("PEG 180 M") e Bounce Curl ("Fragrance (Phthalate Free)")
+    expect(aplicarFiltro('Aqua, PEG 180 M, Glycerin').excluidos[0]?.regra).toBe('PEG e etoxilados');
+    expect(aplicarFiltro('Aqua, Glycerin, Fragrance (Phthalate Free)').excluidos).toEqual([]);
+    expect(aplicarFiltro('Aqua, Diethyl Phthalate').excluidos[0]?.regra).toBe('Ftalatos');
+  });
+
   it('separadores que não são vírgula', () => {
     // travessão (Uriage) e ponto médio (Rilastil)
     expect(aplicarFiltro('AQUA — DIMETHICONE — GLYCERIN').excluidos.length).toBe(1);

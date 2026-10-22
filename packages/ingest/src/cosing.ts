@@ -152,8 +152,18 @@ export function extrairInciEmbutido(nomeQuimico: string): string[] {
  * "except for" também: "Furocoumarines … except for normal content in natural
  * essences used" (358), safrol (360), benzoatos de coniferilo (357). Sem isto,
  * os 68 ingredientes de citrinos que o CosIng identifica na entrada 358
- * apareciam como proibidos sem condição — o óleo de casca de limão incluído. */
-const RE_EXCECAO = /,?\s*\b(except if|except when|except those|except for|unless|with the exception of|other than|if (?:it|they) contains?)\b/i;
+ * apareciam como proibidos sem condição — o óleo de casca de limão incluído.
+ *
+ * Mais duas formas (D22):
+ * - "if the maximum theoretical concentration of releasable formaldehyde … is
+ *   ≥ 0,1 %" — quatro libertadores de formaldeído (1605–1607, 1669) que são
+ *   proibidos SÓ acima desse limite; abaixo, o Anexo V autoriza-os.
+ * - "when used as a substance in hair (and eyelash) dye products" — 151
+ *   entradas cuja proibição só vale para tintas de cabelo. O CI 14700 é o
+ *   caso: proibido como tinta, autorizado como corante de produto (Anexo IV,
+ *   18). Num champô, a proibição não se aplica. As 32 "when used as a
+ *   fragrance ingredient" ficam absolutas: num rótulo, é esse o uso. */
+const RE_EXCECAO = /,?\s*\b(except if|except when|except those|except for|unless|with the exception of|other than|if (?:it|they) contains?|if the maximum theoretical concentration|when used as (?:a )?substance in hair (?:and eyelash )?dye products)\b/i;
 
 /** Separa o nome da substância da cláusula de exceção que o acompanha.
  *  "Petrolatum, except if the full refining history is known…" tem de dar

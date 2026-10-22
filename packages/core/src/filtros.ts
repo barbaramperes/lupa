@@ -102,12 +102,14 @@ export const FILTRO_LOWTOX: Filtro = {
     { rotulo: 'Isotiazolinonas', padroes: [/methylisothiazolinone/i, /methylchloroisothiazolinone/i, /isothiazolinone/i], veredicto: 'excluido' },
     { rotulo: 'Óleo mineral, parafina, vaselina', padroes: [/mineral oil/i, /paraffinum/i, /\bparaffin\b/i, /petrolatum/i, /petroleum/i, /cera microcristallina/i, /microcrystalline wax/i, /ozokerite/i], veredicto: 'excluido' },
     { rotulo: 'Parabenos', padroes: [/paraben/i], veredicto: 'excluido' },
-    { rotulo: 'Ftalatos', padroes: [/phthalate/i], veredicto: 'excluido' },
+    // "Fragrance (Phthalate Free)" é uma alegação, não um ftalato (D22)
+    { rotulo: 'Ftalatos', padroes: [/phthalates?(?![\s-]*free)/i], veredicto: 'excluido' },
     /* Em INCI, "-eth-N" é a convenção para N unidades de óxido de etileno:
      * Ceteth-20, C12-13 Alketh-23, Beheneth-10, Glycereth-26. Nomeá-los um a um
      * deixava escapar os que ninguém se lembrou de listar. Laureth, Ceteareth
      * e Isoceteth têm regra própria, mais acima, e ficam com o nome delas. */
-    { rotulo: 'PEG e etoxilados', padroes: [/\bpeg-\d/i, /polyethylene glycol/i, /\bpolysorbate/i, /\w+eth-\d/i], veredicto: 'excluido' },
+    // "PEG 180 M" (Lola Dream Cream) escreve-se com espaço em vez de hífen (D22)
+    { rotulo: 'PEG e etoxilados', padroes: [/\bpeg[- ]?\d/i, /polyethylene glycol/i, /\bpolysorbate/i, /\w+eth-\d/i], veredicto: 'excluido' },
     { rotulo: 'PTFE', padroes: [/polytetrafluoroethylene/i, /\bptfe\b/i], veredicto: 'excluido' },
     { rotulo: 'PAPB', padroes: [/polyaminopropyl biguanide/i], veredicto: 'excluido' },
     { rotulo: 'Polyquaternium', padroes: [/polyquaternium/i], veredicto: 'excluido' },

@@ -71,10 +71,17 @@ import { ANEXO_NUM, ANEXO_ROTULO, CMR_ROTULO, limpar, type Entrada } from './mod
           </span>
 
           @if (a.payload.excecao) {
-            <p class="excecao">
-              A proibição tem uma condição: <b>{{ limpar(a.payload.excecao) }}</b>. Um produto no mercado
-              europeu presume-se conforme — quem a tem de cumprir e documentar é o fabricante.
-            </p>
+            @if (soTintas(a.payload.excecao)) {
+              <p class="excecao">
+                A proibição só vale para tintas de cabelo: <b>{{ limpar(a.payload.excecao) }}</b>. Noutro
+                produto (por exemplo, como corante de um champô) não se aplica; numa tinta de cabelo, aplica-se.
+              </p>
+            } @else {
+              <p class="excecao">
+                A proibição tem uma condição: <b>{{ limpar(a.payload.excecao) }}</b>. Um produto no mercado
+                europeu presume-se conforme — quem a tem de cumprir e documentar é o fabricante.
+              </p>
+            }
           }
 
           @if (a.kind === 'reach_xvii_restricted') {
@@ -129,6 +136,8 @@ export class EntradaComponent {
   readonly filtroRegra = input<{ regra: string; condicional: boolean } | null>(null);
 
   protected readonly limpar = limpar;
+  /** Proibição cujo âmbito é a tinta de cabelo, não uma condição de matéria-prima (D22). */
+  protected readonly soTintas = (excecao: string) => /^when used as (a )?substance in hair/i.test(excecao.trim());
   protected readonly rotuloAnexo = (k: string) => ANEXO_ROTULO[k] ?? k;
   protected readonly numAnexo = (k: string) => ANEXO_NUM[k] ?? '?';
   protected readonly rotuloCmr = (t: string) => CMR_ROTULO[t] ?? t;

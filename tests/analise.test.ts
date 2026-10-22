@@ -306,3 +306,21 @@ describe('D21 — espumas da Mercadona', () => {
     expect(corre('Aqua, DEA-Cetyl Phosphate').resumo.proibidos).toBe(1);
   });
 });
+
+describe('D22 — proibições com âmbito ou limite', () => {
+  it('CI 14700 num champô: a proibição é só para tintas de cabelo', () => {
+    // Rótulo real: Davines MOMO Shampoo (fórmula de 2026).
+    const a = corre('Aqua, Sodium Lauroyl Methyl Isethionate, Parfum, CI 14700');
+    expect(a.resumo.proibidos).toBe(0);
+    expect(a.resumo.proibidos_condicionais).toBe(1);
+  });
+
+  it('libertador de formaldeído proibido só acima de 0,1 % de formaldeído libertável', () => {
+    expect(corre('Aqua, Sodium Hydroxymethylglycinate').resumo.proibidos).toBe(0);
+  });
+
+  it('a proibição dos ingredientes de perfume continua absoluta', () => {
+    // "Benzyl cyanide, when used as a fragrance ingredient": num rótulo, é esse o uso.
+    expect(corre('Aqua, Benzyl Cyanide').resumo.proibidos).toBe(1);
+  });
+});
