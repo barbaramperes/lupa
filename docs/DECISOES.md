@@ -575,3 +575,7 @@ final. Trata-se o ponto como separador só quando quase não há vírgulas, para
   **"Fragrance (Phthalate Free)"** chumbava por ftalatos (Bounce Curl).
 
 A prata coloidal (nano) aparece como proibida e está certo: entrada 1727.
+- Filtro: **"Sodium Coceth Sulfate"** (Organethic) é etoxilado sem número no
+  nome — passa a apanhar "-eth sulfate". E **"-olamine"/MEA**: a lista dela
+  nomeia "Ethanolamine" à parte, e "Piroctone Olamine" é o sal de etanolamina
+  (Kérastase Genesis).

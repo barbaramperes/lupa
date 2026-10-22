@@ -90,7 +90,10 @@ export const FILTRO_LOWTOX: Filtro = {
      * Trimethicone, Caprylyl Methicone. "silox" apanha Siloxane e
      * Trimethylsiloxysilicate. O Polysilicone-15 é filtro UV e cai antes. */
     { rotulo: 'Ciclopentasiloxano e silicones', padroes: [/cyclo\w*siloxane/i, /methicon/i, /silox/i, /silsesquioxane/i, /polysilicone-\d/i], veredicto: 'excluido' },
-    { rotulo: 'DEA / etanolaminas', padroes: [/diethanolamine/i, /\bdea\b/i, /^ethanolamine/i, /triethanolamine/i, /\btea-/i], veredicto: 'excluido' },
+    /* A lista nomeia "Ethanolamine" à parte. "-olamine" é o sal de etanolamina
+     * em INCI (Piroctone Olamine) e MEA a sua sigla (Cocamide MEA), tal como
+     * DEA, que já cá estava (D22). */
+    { rotulo: 'DEA / etanolaminas', padroes: [/diethanolamine/i, /\bdea\b/i, /^ethanolamine/i, /triethanolamine/i, /\btea-/i, /\bolamine\b/i, /\bmea\b/i], veredicto: 'excluido' },
     { rotulo: 'EDTA', padroes: [/\bedta\b/i], veredicto: 'excluido' },
     { rotulo: 'Etilenoglicol', padroes: [/ethylene glycol/i], veredicto: 'excluido' },
     { rotulo: 'Formaldeído e libertadores', padroes: [/formaldehyde/i, /diazolidinyl urea/i, /imidazolidinyl urea/i, /quaternium-15/i, /dmdm hydantoin/i, /methenamine/i, /bronopol/i], veredicto: 'excluido' },
@@ -109,7 +112,8 @@ export const FILTRO_LOWTOX: Filtro = {
      * deixava escapar os que ninguém se lembrou de listar. Laureth, Ceteareth
      * e Isoceteth têm regra própria, mais acima, e ficam com o nome delas. */
     // "PEG 180 M" (Lola Dream Cream) escreve-se com espaço em vez de hífen (D22)
-    { rotulo: 'PEG e etoxilados', padroes: [/\bpeg[- ]?\d/i, /polyethylene glycol/i, /\bpolysorbate/i, /\w+eth-\d/i], veredicto: 'excluido' },
+    // "Sodium Coceth Sulfate" é etoxilado sem número no nome: o primo de coco do laureth (D22)
+    { rotulo: 'PEG e etoxilados', padroes: [/\bpeg[- ]?\d/i, /polyethylene glycol/i, /\bpolysorbate/i, /\w+eth-\d/i, /\w+eth sulfate/i], veredicto: 'excluido' },
     { rotulo: 'PTFE', padroes: [/polytetrafluoroethylene/i, /\bptfe\b/i], veredicto: 'excluido' },
     { rotulo: 'PAPB', padroes: [/polyaminopropyl biguanide/i], veredicto: 'excluido' },
     { rotulo: 'Polyquaternium', padroes: [/polyquaternium/i], veredicto: 'excluido' },

@@ -72,6 +72,16 @@ describe('filtro de exclusão', () => {
     expect(aplicarFiltro('Aqua, Methylpropanediol, Ethylhexylglycerin').passa).toBe(true);
   });
 
+  it('sulfato etoxilado sem número e sais de etanolamina', () => {
+    // Organethic OLIGO shampoo e Kérastase Genesis
+    expect(aplicarFiltro('Aqua, Sodium Coceth Sulfate').excluidos[0]?.regra).toBe('PEG e etoxilados');
+    expect(aplicarFiltro('Aqua, Sodium Myreth Sulfate').excluidos[0]?.regra).toBe('PEG e etoxilados');
+    expect(aplicarFiltro('Aqua, Piroctone Olamine').excluidos[0]?.regra).toBe('DEA / etanolaminas');
+    expect(aplicarFiltro('Aqua, Cocamide MEA').excluidos[0]?.regra).toBe('DEA / etanolaminas');
+    // e não apanha o que só se parece
+    expect(aplicarFiltro('Aqua, Sodium Coco-Sulfate, Sodium Methyl Cocoyl Taurate').excluidos).toEqual([]);
+  });
+
   it('PEG escrito com espaço, e "phthalate free" que não é um ftalato', () => {
     // Lola Dream Cream ("PEG 180 M") e Bounce Curl ("Fragrance (Phthalate Free)")
     expect(aplicarFiltro('Aqua, PEG 180 M, Glycerin').excluidos[0]?.regra).toBe('PEG e etoxilados');
