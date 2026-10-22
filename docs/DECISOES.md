@@ -579,3 +579,7 @@ A prata coloidal (nano) aparece como proibida e está certo: entrada 1727.
   nome — passa a apanhar "-eth sulfate". E **"-olamine"/MEA**: a lista dela
   nomeia "Ethanolamine" à parte, e "Piroctone Olamine" é o sal de etanolamina
   (Kérastase Genesis).
+- Segmentador: **um parêntese que abre e nunca fecha** (Philip Martin's
+  "Color It Silver", copiado do site oficial) metia o resto da lista dentro
+  dele — uma só entrada, onde um ingrediente excluído se podia esconder. Com
+  parênteses desequilibrados, as vírgulas mandam.

@@ -86,6 +86,13 @@ describe('vírgulas e percentagens dentro de nomes', () => {
     expect(segment('Aqua, Alcohol Denat., Glycerin, Parfum').length).toBe(4);
   });
 
+  it('um parêntese que nunca fecha não engole o resto da lista', () => {
+    // Philip Martin's "Color It Silver", copiado do site oficial
+    const s = segment('Aqua, argania spinosa oil (argania spinosa (kernel) oil, butyrospermum parkii butter, quaternium-80, disodium edta, parfum');
+    expect(s.length).toBeGreaterThanOrEqual(5);
+    expect(s.some((x) => /disodium edta/i.test(x.raw) && !/butyrospermum/i.test(x.raw))).toBe(true);
+  });
+
   it('não parte um locante químico', () => {
     // "1,2-Hexanediol" virava "2-Hexanediol": a vírgula entre dígitos é parte
     // do nome, e o "1" sozinho era descartado por curto — em silêncio.

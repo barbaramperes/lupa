@@ -101,9 +101,17 @@ export function segment(label: string): Segment[] {
   const pontos = normalizado.match(/\.\s+(?=[A-Za-z0-9])/g)?.length ?? 0;
   const virgulas = normalizado.match(/,/g)?.length ?? 0;
   if (pontos >= 3 && virgulas * 4 < pontos) normalizado = normalizado.replace(/\.\s+(?=[A-Za-z0-9])/g, ',').replace(/\.\s*$/, '');
+  // Um parêntese que abre e nunca fecha ("argania spinosa oil (argania spinosa
+  // (kernel) oil, butyrospermum…", Philip Martin's) punha o resto da lista
+  // dentro dele: tudo virava UMA entrada, e um ingrediente da lista dela podia
+  // esconder-se lá. Com parênteses desequilibrados, as vírgulas mandam (D22).
+  const abre = normalizado.match(/[([]/g)?.length ?? 0;
+  const fecha = normalizado.match(/[)\]]/g)?.length ?? 0;
+  const confiarNosParenteses = abre <= fecha;
   for (let i = 0; i < normalizado.length; i++) {
     const ch = normalizado[i]!;
-    if (ch === '(' || ch === '[') depth++;
+    if (!confiarNosParenteses) { /* depth fica a 0 */ }
+    else if (ch === '(' || ch === '[') depth++;
     else if (ch === ')' || ch === ']') depth = Math.max(0, depth - 1);
     // Uma vírgula ENTRE DOIS DÍGITOS é um locante químico, não um separador:
     // 1,2-Hexanediol, 1,3-Propanediol, 2,4-Dichlorobenzyl Alcohol. Partir aí
