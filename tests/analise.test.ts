@@ -324,3 +324,22 @@ describe('D22 — proibições com âmbito ou limite', () => {
     expect(corre('Aqua, Benzyl Cyanide').resumo.proibidos).toBe(1);
   });
 });
+
+describe('D23 — formas nano e polímeros', () => {
+  it('Styrene/Acrylates Copolymer normal não é a forma nano proibida', () => {
+    // Rótulo real: Novex/Skala, champôs de caracóis (Notino.pt)
+    expect(corre('Aqua, Styrene/Acrylates Copolymer, Glycerin').resumo.proibidos).toBe(0);
+  });
+
+  it('com "(nano)" no rótulo, a proibição aplica-se', () => {
+    expect(corre('Aqua, Styrene/Acrylates Copolymer (nano), Glycerin').resumo.proibidos).toBe(1);
+  });
+
+  it('um polímero não herda a proibição do monómero pela ponte do PubChem', () => {
+    // Cantu Avocado Hydrating Curling Cream: "Polyethylene Glycol" caía na aziridina
+    expect(corre('Aqua, Polyethylene Glycol').resumo.proibidos).toBe(0);
+    expect(corre('Aqua, Polyvinyl Chloride').resumo.proibidos).toBe(0);
+    // o monómero continua proibido
+    expect(corre('Aqua, Acrylamide').resumo.proibidos).toBeGreaterThan(0);
+  });
+});

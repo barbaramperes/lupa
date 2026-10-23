@@ -126,11 +126,17 @@ export function analisar(nucleo: CoreBundle, matcher: Matcher, texto: string, mo
   const noBlend = (pos: number) => blendPos !== null && pos <= blendPos && pos >= blendPos - 3;
 
   const entradas: Entrada[] = segs.map((s) => {
-    const ids = matcher.exata(s.norm);
+    // "Silver (nano)": se o nome com NANO não estiver no índice, procura-se o
+    // nome-base — e as proibições só da forma nano aplicam-se em cheio (D23).
+    const ids = matcher.exata(s.norm)
+      ?? (/\bnano\b/i.test(s.raw) ? matcher.exata(s.norm.replace(/\bNANO\b/g, ' ').replace(/\s+/g, ' ').trim()) : null);
     if (ids) {
       const substancias = ids.map((i) => porId.get(i)).filter(Boolean) as Substance[];
       const afirmacoes = ids
         .flatMap((i) => claimsPorId.get(i) ?? [])
+        // Uma proibição só da forma nano é condicional, salvo quando o próprio
+        // rótulo escreve "(nano)" — aí é exatamente a forma proibida (D23).
+        .map((a) => (a.payload.so_nano && /\bnano\b/i.test(s.raw) ? { ...a, payload: { ...a.payload, excecao: undefined } } : a))
         .sort((a, b) => SEVERIDADE_REGULAMENTAR[b.kind] - SEVERIDADE_REGULAMENTAR[a.kind]);
       const cmr: Cmr[] = [];
       for (const a of afirmacoes) {

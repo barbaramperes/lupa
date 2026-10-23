@@ -86,6 +86,12 @@ describe('vírgulas e percentagens dentro de nomes', () => {
     expect(segment('Aqua, Alcohol Denat., Glycerin, Parfum').length).toBe(4);
   });
 
+  it('lista separada por " I " (Lyko, Lola from Rio)', () => {
+    const s = segment('Aqua/Water/Eau I Coco Glucoside (and) Glyceryl Oleate I Glycerin I Cocamidopropyl Betaine I Polyquaternium - 10 | Citric Acid');
+    expect(s.map((x) => x.raw)).toContain('Glycerin');
+    expect(s.length).toBeGreaterThanOrEqual(6);
+  });
+
   it('um parêntese que nunca fecha não engole o resto da lista', () => {
     // Philip Martin's "Color It Silver", copiado do site oficial
     const s = segment('Aqua, argania spinosa oil (argania spinosa (kernel) oil, butyrospermum parkii butter, quaternium-80, disodium edta, parfum');

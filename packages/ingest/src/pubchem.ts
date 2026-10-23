@@ -55,6 +55,11 @@ export function nomeUtilizavel(nome: string): boolean {
   // mas num rótulo PVP é o INCI da polivinilpirrolidona (polímero,
   // autorizado). Uma sigla que só a ponte conhece não entra no índice (D21).
   if (/^[A-Z]{2,5}$/.test(t)) return false;
+  // Um polímero nunca é o seu monómero. A ponte casa por CAS de molécula
+  // pequena e trazia "Polyacrylamide" para a acrilamida, "Polyvinyl Chloride"
+  // para o cloreto de vinilo e "Polyethylene glycol" para a aziridina — todos
+  // proibidos, nenhum é o que está no frasco (D23).
+  if (/^poly/i.test(t) || /\b(co)?polymer\b/i.test(t)) return false;
   for (const re of LIXO) if (re.test(t)) return false;
   // linhas com separadores de campo são despejos de base de dados, não nomes
   if (/[|\t]/.test(t)) return false;

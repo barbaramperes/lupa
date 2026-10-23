@@ -71,7 +71,12 @@ import { ANEXO_NUM, ANEXO_ROTULO, CMR_ROTULO, limpar, type Entrada } from './mod
           </span>
 
           @if (a.payload.excecao) {
-            @if (soTintas(a.payload.excecao)) {
+            @if (a.payload.so_nano) {
+              <p class="excecao">
+                A proibição é só da forma nano: <b>{{ limpar(a.payload.excecao) }}</b>. Na UE, um nanomaterial tem
+                de vir no rótulo com «(nano)» a seguir ao nome; sem isso, é a forma normal, que é permitida.
+              </p>
+            } @else if (soTintas(a.payload.excecao)) {
               <p class="excecao">
                 A proibição só vale para tintas de cabelo: <b>{{ limpar(a.payload.excecao) }}</b>. Noutro
                 produto (por exemplo, como corante de um champô) não se aplica; numa tinta de cabelo, aplica-se.

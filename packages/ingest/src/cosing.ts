@@ -325,6 +325,8 @@ export function construirNucleo(lidos: AnexoLido[], dataExtracao: string): CoreB
       const ref = (linha[0] ?? '').trim();
       const nomeQuimicoBruto = limpo(linha[esp.colNomeQuimico]);
       const { base: nomeQuimico, excecao, remissao } = separarExcecao(nomeQuimicoBruto);
+      // Proibição só da forma nano (Anexo II 1725–1729) — ver Claim.payload.so_nano (D23)
+      const soNano = esp.anexo === 'II' && /\(nano\)/i.test(nomeQuimicoBruto);
       const inci = esp.colInci === null ? '' : limpo(linha[esp.colInci]);
 
       const cas = explodir(linha[esp.colCas] ?? '').filter((c) => {
@@ -396,8 +398,9 @@ export function construirNucleo(lidos: AnexoLido[], dataExtracao: string): CoreB
           cmr: limpo(linha[esp.anexo === 'II' ? 9 : esp.anexo === 'IV' ? 15 : 14]) || undefined,
           // uma remissão não abranda a proibição: é proibido, salvo num uso
           // estreito que este produto quase de certeza não é
-          excecao: remissao ? undefined : excecao,
+          excecao: remissao ? undefined : (excecao ?? (soNano ? nomeQuimicoBruto : undefined)),
           uso_estreito_permitido: remissao ? excecao : undefined,
+          so_nano: soNano || undefined,
         },
         source: {
           dataset: 'cosing',

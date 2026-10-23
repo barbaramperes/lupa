@@ -101,6 +101,11 @@ export function segment(label: string): Segment[] {
   const pontos = normalizado.match(/\.\s+(?=[A-Za-z0-9])/g)?.length ?? 0;
   const virgulas = normalizado.match(/,/g)?.length ?? 0;
   if (pontos >= 3 && virgulas * 4 < pontos) normalizado = normalizado.replace(/\.\s+(?=[A-Za-z0-9])/g, ',').replace(/\.\s*$/, '');
+  // A Lyko (Lola from Rio) separa com um "I" maiúsculo entre espaços:
+  // "Aqua I Coco Glucoside I Glycerin". Nenhum ingrediente se chama "I".
+  const is = normalizado.match(/\s+I\s+/g)?.length ?? 0;
+  const virgulas2 = normalizado.match(/,/g)?.length ?? 0;
+  if (is >= 3 && virgulas2 * 2 < is) normalizado = normalizado.replace(/\s+I\s+/g, ',');
   // Um parêntese que abre e nunca fecha ("argania spinosa oil (argania spinosa
   // (kernel) oil, butyrospermum…", Philip Martin's) punha o resto da lista
   // dentro dele: tudo virava UMA entrada, e um ingrediente da lista dela podia

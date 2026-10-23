@@ -67,6 +67,12 @@ export interface Claim {
      *  proibição: a hidroquinona é proibida salvo 0,02% em unhas artificiais
      *  de uso profissional, o que num creme de corpo não é exceção nenhuma. */
     uso_estreito_permitido?: string;
+    /** Proibição só da forma nano (Anexo II 1725–1729: prata, ouro, cobre,
+     *  platina, styrene/acrylates copolymer). A forma normal é um ingrediente
+     *  comum — o copolímero é opacificante, a prata e o ouro são corantes
+     *  (Anexo IV). Fica condicional, e só vira absoluta se o rótulo disser
+     *  "(nano)", como a UE obriga para nanomateriais (D23). */
+    so_nano?: boolean;
   };
   source: Source;
 }

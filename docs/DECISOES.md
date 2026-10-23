@@ -585,3 +585,26 @@ A prata coloidal (nano) aparece como proibida e está certo: entrada 1727.
   parênteses desequilibrados, as vírgulas mandam.
 - Filtro: "polyacrylamide" passa a raiz "polyacrylamid" — apanha
   Polyacrylamidopropyltrimonium Chloride (BUR BUR The Muse).
+
+---
+
+## D23 — Um polímero não é o seu monómero; uma proibição nano não é da forma normal
+
+**Descoberto ao triar marcas brasileiras e a Cantu**, 23 out 2026.
+
+- **Ponte do PubChem:** casa por CAS de molécula pequena, e o PubChem pendura
+  nomes de polímeros nos monómeros. Resultado: "Polyvinylpyrrolidone" (PVP,
+  em quase todos os géis e espumas) caía na vinilpirrolidona proibida;
+  "Polystyrene" no estireno; "Polyacrylamide" na acrilamida; "Polyvinyl
+  Chloride" no cloreto de vinilo; e "Polyethylene Glycol" — num creme da Cantu
+  — na aziridina. Regra nova: nomes começados por "poly" ou com "polymer" não
+  entram pela ponte. Medido contra o núcleo da véspera: 0 chaves novas
+  proibidas; todas as removidas eram polímeros.
+- **Anexo II 1725–1729 (nano):** prata, ouro, cobre, platina e
+  styrene/acrylates copolymer são proibidos só na forma nano (a 1727 inclui
+  também a prata "massive" ≥ 1 mm). A forma normal é corante (Anexo IV) ou
+  opacificante. O champô Skala com "Styrene/Acrylates Copolymer" aparecia
+  "proibido". Passam a condicionais (`so_nano`), e só viram absolutas se o
+  rótulo disser "(nano)" — que é o que a UE obriga para nanomateriais. Para
+  isso, "X (nano)" que não esteja no índice procura-se pelo nome-base.
+- Segmentador: a Lyko separa as listas da Lola com **" I "** (i maiúsculo).
