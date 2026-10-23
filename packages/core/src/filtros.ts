@@ -52,7 +52,8 @@ export const FILTRO_LOWTOX: Filtro = {
   aviso: 'Lista de preferência pessoal, declarada como tal pelo próprio documento. Não é lei nem referencial de certificação.',
   regras: [
     { rotulo: 'Alumínio', padroes: [/\baluminum\b/i, /\baluminium\b/i], veredicto: 'excluido' },
-    { rotulo: 'Acrilatos', padroes: [/acrylate/i, /acrylic acid/i, /carbomer/i, /polyacrylamide/i], veredicto: 'excluido' },
+    // "polyacrylamid" apanha também Polyacrylamidopropyltrimonium Chloride (BUR BUR The Muse) (D22)
+    { rotulo: 'Acrilatos', padroes: [/acrylate/i, /acrylic acid/i, /carbomer/i, /polyacrylamid/i], veredicto: 'excluido' },
     /* FILTROS UV: só minerais.
      *
      * A lista original nomeia seis filtros químicos. Ela confirmou que o

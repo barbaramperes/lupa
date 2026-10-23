@@ -583,3 +583,5 @@ A prata coloidal (nano) aparece como proibida e está certo: entrada 1727.
   "Color It Silver", copiado do site oficial) metia o resto da lista dentro
   dele — uma só entrada, onde um ingrediente excluído se podia esconder. Com
   parênteses desequilibrados, as vírgulas mandam.
+- Filtro: "polyacrylamide" passa a raiz "polyacrylamid" — apanha
+  Polyacrylamidopropyltrimonium Chloride (BUR BUR The Muse).

@@ -72,6 +72,10 @@ describe('filtro de exclusão', () => {
     expect(aplicarFiltro('Aqua, Methylpropanediol, Ethylhexylglycerin').passa).toBe(true);
   });
 
+  it('polímeros de poliacrilamida com outro sufixo', () => {
+    expect(aplicarFiltro('Aqua, Polyacrylamidopropyltrimonium Chloride').excluidos[0]?.regra).toBe('Acrilatos');
+  });
+
   it('sulfato etoxilado sem número e sais de etanolamina', () => {
     // Organethic OLIGO shampoo e Kérastase Genesis
     expect(aplicarFiltro('Aqua, Sodium Coceth Sulfate').excluidos[0]?.regra).toBe('PEG e etoxilados');
