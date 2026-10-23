@@ -1,4 +1,74 @@
 import { segment } from './normalize';
+import { traduzirPt } from './portugues';
+
+/**
+ * NOMES PORTUGUESES E BRASILEIROS → RADICAIS INCI, só para o filtro (D24).
+ *
+ * Rótulos brasileiros importados (lojas brasileiras em Portugal, sites
+ * oficiais do Brasil) trazem os nomes DCB em português: "edetato dissódico",
+ * "dimeticona", "poliquatérnio-55", "octinoxato", "butil-hidroxitolueno". As
+ * regras do filtro estão em INCI inglês, e um leave-in com EDTA, silicones,
+ * filtro UV e BHT passava como limpo. Cada padrão aqui devolve o radical INCI
+ * que a regra certa reconhece; a análise regulamentar continua a usar o
+ * tradutor de portugues.ts, que só aceita traduções que existem no índice.
+ */
+const PT_PARA_INCI: Array<[RegExp, string]> = [
+  [/meticon/i, 'dimethicone'],
+  [/siloxano/i, 'siloxane'],
+  [/edetato/i, 'edta'],
+  [/polietilenoglicol/i, 'polyethylene glycol'],
+  [/poliss?orbato/i, 'polysorbate'],
+  [/cetearete/i, 'ceteareth'],
+  [/isocetete/i, 'isoceteth'],
+  [/laurete|lauril [ée]ter/i, 'laureth'],
+  [/\b\w+ete-\d/i, 'xeth-1'],
+  [/poliquat[eé]rnio/i, 'polyquaternium'],
+  [/hidroxitolueno/i, 'butylated hydroxytoluene'],
+  [/hidroxianisol/i, 'butylated hydroxyanisole'],
+  [/salicilato de benzil/i, 'benzyl salicylate'],
+  [/benzoato de benzil/i, 'benzyl benzoate'],
+  [/parabeno/i, 'paraben'],
+  [/octinoxato|metoxicinamato/i, 'methoxycinnamate'],
+  [/octocrileno/i, 'octocrylene'],
+  [/avobenzona/i, 'avobenzone'],
+  [/oxibenzona|benzofenona/i, 'benzophenone'],
+  [/homoss?alato/i, 'homosalate'],
+  [/salicilato de (etil-?hexila|octila)/i, 'ethylhexyl salicylate'],
+  [/hidanto[ií]na/i, 'dmdm hydantoin'],
+  [/imidazolidinil/i, 'imidazolidinyl urea'],
+  [/diazolidinil/i, 'diazolidinyl urea'],
+  [/formalde[ií]do/i, 'formaldehyde'],
+  [/[óo]leo mineral|parafina|vaselina|petrolato/i, 'mineral oil'],
+  [/carb[ôoó]mero/i, 'carbomer'],
+  [/acrilato/i, 'acrylate'],
+  [/poliacrilamid/i, 'polyacrylamide'],
+  [/trietanolamina/i, 'triethanolamine'],
+  [/dietanolamina/i, 'diethanolamine'],
+  [/^(mono)?etanolamina/i, 'ethanolamine'],
+  [/isotiazolinona/i, 'isothiazolinone'],
+  [/ftalato/i, 'phthalate'],
+  [/^talco\b/i, 'talc'],
+  [/tolueno\b/i, 'toluene'],
+  [/sarcosinato/i, 'sodium lauroyl sarcosinate'],
+  [/benzalc[ôoó]nio/i, 'benzalkonium'],
+  [/clorfenesina/i, 'chlorphenesin'],
+  [/cloroxilenol/i, 'chloroxylenol'],
+  [/fenoxietanol/i, 'phenoxyethanol'],
+  [/coc[oa]?amidopropil betaína/i, 'cocamidopropyl betaine'],
+  [/^perfume\b|fragr[âa]ncia/i, 'parfum'],
+  [/alum[íi]nio/i, 'aluminum'],
+  [/(?<!poli)etileno ?glicol/i, 'ethylene glycol'],
+  [/politetrafluoretileno/i, 'polytetrafluoroethylene'],
+  [/hidroquinona/i, 'hydroquinone'],
+  [/di[óo]xido de tit[âa]nio/i, 'titanium dioxide'],
+];
+
+function leiturasPt(entrada: string): string[] {
+  const out = PT_PARA_INCI.filter(([re]) => re.test(entrada)).map(([, inci]) => inci);
+  const t = traduzirPt(entrada);
+  if (t) out.push(t.inci);
+  return out;
+}
 
 /**
  * FILTROS DE EXCLUSÃO NOMEADOS.
@@ -96,7 +166,8 @@ export const FILTRO_LOWTOX: Filtro = {
      * DEA, que já cá estava (D22). */
     { rotulo: 'DEA / etanolaminas', padroes: [/diethanolamine/i, /\bdea\b/i, /^ethanolamine/i, /triethanolamine/i, /\btea-/i, /\bolamine\b/i, /\bmea\b/i], veredicto: 'excluido' },
     { rotulo: 'EDTA', padroes: [/\bedta\b/i], veredicto: 'excluido' },
-    { rotulo: 'Etilenoglicol', padroes: [/ethylene glycol/i], veredicto: 'excluido' },
+    // "Polyethylene Glycol" é PEG, não etilenoglicol: cai na regra dos PEG, mais abaixo (D24)
+    { rotulo: 'Etilenoglicol', padroes: [/(?<!poly)ethylene glycol/i], veredicto: 'excluido' },
     { rotulo: 'Formaldeído e libertadores', padroes: [/formaldehyde/i, /diazolidinyl urea/i, /imidazolidinyl urea/i, /quaternium-15/i, /dmdm hydantoin/i, /methenamine/i, /bronopol/i], veredicto: 'excluido' },
     { rotulo: 'Hidroquinona', padroes: [/hydroquinone/i], veredicto: 'excluido' },
     { rotulo: 'Isoceteth', padroes: [/isoceteth/i], veredicto: 'excluido' },
@@ -173,8 +244,11 @@ export function aplicarFiltro(inci: string, filtro: Filtro = FILTRO_LOWTOX): Res
   const entradas = segment(inci).map((s) => s.raw);
 
   entradas.forEach((entrada, i) => {
+    // O filtro testa o nome tal como está E as suas leituras em INCI inglês,
+    // para que "edetato dissódico" ou "dimeticona" não passem por baixo (D24).
+    const leituras = [entrada, ...leiturasPt(entrada)];
     for (const regra of filtro.regras) {
-      if (!regra.padroes.some((re) => re.test(entrada))) continue;
+      if (!regra.padroes.some((re) => leituras.some((l) => re.test(l)))) continue;
       const achado: AchadoFiltro = { pos: i + 1, ingrediente: entrada, regra: regra.rotulo };
       if (regra.veredicto === 'excluido') {
         if (!excluidos.some((e) => e.ingrediente === entrada)) excluidos.push(achado);

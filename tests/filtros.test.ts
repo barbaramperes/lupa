@@ -72,6 +72,22 @@ describe('filtro de exclusão', () => {
     expect(aplicarFiltro('Aqua, Methylpropanediol, Ethylhexylglycerin').passa).toBe(true);
   });
 
+  it('lista em nomes portugueses (DCB) não passa por baixo do filtro', () => {
+    // Haskell Cachos Sim! Leave-in, site oficial brasileiro
+    const r = aplicarFiltro('Água, álcool cetílico, glicerol, fenoxietanol, perfume, dimeticona, óleo de coco, edetato dissódico, octinoxato, tridecete-5, salicilato de benzila, poliquatérnio-55, polissorbato 60, butil-hidroxitolueno');
+    const regras = new Set(r.excluidos.map((e) => e.regra));
+    for (const esperada of ['Ciclopentasiloxano e silicones', 'EDTA', 'Filtro UV químico (só minerais)', 'PEG e etoxilados', 'Salicilato de benzilo', 'Polyquaternium', 'BHT']) {
+      expect(regras.has(esperada), esperada).toBe(true);
+    }
+    expect(r.condicionais.map((c) => c.regra)).toEqual(expect.arrayContaining(['Fenoxietanol', 'Fragrância']));
+  });
+
+  it('uma lista portuguesa limpa continua a passar', () => {
+    const r = aplicarFiltro('Água, glicerina, manteiga de karité, óleo de coco, propileno glicol, isopropanolamina, goma xantana');
+    expect(r.passa).toBe(true);
+    expect(aplicarFiltro('Água, polietilenoglicol').excluidos[0]?.regra).toBe('PEG e etoxilados');
+  });
+
   it('polímeros de poliacrilamida com outro sufixo', () => {
     expect(aplicarFiltro('Aqua, Polyacrylamidopropyltrimonium Chloride').excluidos[0]?.regra).toBe('Acrilatos');
   });

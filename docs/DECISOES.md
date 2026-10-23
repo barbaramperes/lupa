@@ -608,3 +608,21 @@ A prata coloidal (nano) aparece como proibida e está certo: entrada 1727.
   rótulo disser "(nano)" — que é o que a UE obriga para nanomateriais. Para
   isso, "X (nano)" que não esteja no índice procura-se pelo nome-base.
 - Segmentador: a Lyko separa as listas da Lola com **" I "** (i maiúsculo).
+
+---
+
+## D24 — O filtro também lê nomes portugueses (DCB)
+
+**Descoberto com a Haskell Cachos Sim!**, 23 out 2026. O site oficial
+brasileiro publica a composição em nomes portugueses: "edetato dissódico",
+"dimeticona", "poliquatérnio-55", "octinoxato", "tridecete-5",
+"butil-hidroxitolueno". As regras do filtro estão em INCI inglês, e um leave-in
+com EDTA, três silicones, um filtro UV químico, PEG e BHT passava como limpo.
+
+O filtro passa a testar cada entrada tal como está **e** as suas leituras
+INCI: uma tabela de radicais portugueses → inglês (`PT_PARA_INCI`, só para o
+filtro) mais o tradutor de D9. A análise regulamentar não muda: continua a
+aceitar só traduções que existem no índice.
+
+De caminho: "Polyethylene Glycol" caía na regra do etilenoglicol; agora cai na
+dos PEG, que é o que é.
